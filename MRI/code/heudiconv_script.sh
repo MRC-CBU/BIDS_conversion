@@ -37,7 +37,7 @@ OUTPUT_PATH="${4}"
 task_id=$SLURM_ARRAY_TASK_ID
 
 # ------------------------------------------------------------
-# Set the DICOM path and subject ID for this task
+# Set the subject ID and DICOM path for this task
 # ------------------------------------------------------------
 SUBJECT_ID=${SUBJECT_ID_LIST[$task_id]}
 DICOM_PATH=${DICOM_PATH_LIST[$task_id]}

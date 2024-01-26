@@ -5,7 +5,8 @@
 # Converting CBU DICOM files into BIDS format using Heudiconv
 #
 # Usage: 
-#   Configure the variables below and run the script with SLURM: sbatch dicom_to_bids_multiple_subjects.sh
+#   1) Configure the variables below 
+#   2) Run the script with SLURM: sbatch dicom_to_bids_multiple_subjects.sh
 #
 # ============================================================
 
@@ -17,14 +18,19 @@
 # ------------------------------------------------------------
 
 #SBATCH --job-name=heudiconv_%a
-#SBATCH --output=/imaging/correia/da05/wiki/BIDS_conversion/MRI/data/job_logs/heudiconv_job_%A_%a.out
-#SBATCH --error=/imaging/correia/da05/wiki/BIDS_conversion/MRI/data/job_logs/heudiconv_job_%A_%a.err
+#SBATCH --output=/imaging/correia/da05/wiki/BIDS_conversion/MRI/code/job_logs/heudiconv_job_%A_%a.out
+#SBATCH --error=/imaging/correia/da05/wiki/BIDS_conversion/MRI/code/job_logs/heudiconv_job_%A_%a.err
 #SBATCH --array=1-3 # Adjust the array range to match which subjects you want to process
 
 # ------------------------------------------------------------
 # SLURM will handle the parallelization across the specified array range.
 # SLURM will create separate tasks for each array index.
-# The SLURM_ARRAY_TASK_ID will be used later in the script to select a subject from subjects list. 
+# The SLURM_ARRAY_TASK_ID will be used later in the script to select a subject from subjects list.
+
+
+sbatch --array=0-2 --job-name=heudiconv {HEUDICONV_SCRIPT} '{subject_ids_list}' '{dicom_paths_list}' '{HEURISTIC_FILE}' '{OUTPUT_PATH}'
+)
+
 
 # ------------------------------------------------------------
 #

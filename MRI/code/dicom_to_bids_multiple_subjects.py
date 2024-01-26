@@ -1,4 +1,4 @@
-#!/usr/bin/env /usr/bin/python3.6
+#!/usr/bin/python3.6
 
 # ============================================================
 # Requires Python 3.6 or higher! (because of f-strings)
@@ -18,6 +18,11 @@ import os # To check if files and folders exist
 import sys # To exit the script in case of error
 import subprocess # To run shell commands
 
+# Check if it's Python 3.6 or higher
+if sys.version_info < (3, 6):
+    sys.stderr.write("You need Python 3.6 or higher to run this script\n")
+    sys.exit(1)
+    
 # ------------------------------------------------------------
 #
 # !FILL IN THE VARIABLES BELOW!
@@ -30,11 +35,11 @@ PROJECT_PATH = '/imaging/correia/da05/wiki/BIDS_conversion/MRI'
 # Location of the heudiconv_script bash script
 HEUDICONV_SCRIPT = f"{PROJECT_PATH}/code/heudiconv_script.sh"
 
-# Location of the output data (Heudiconv will create the folder if it doesn't exist)
-OUTPUT_PATH = f"{PROJECT_PATH}/data/"
-
 # Location of the heudiconv heuristic file
 HEURISTIC_FILE = f"{PROJECT_PATH}/code/bids_heuristic.py"
+
+# Location of the output data (Heudiconv will create the folder if it doesn't exist)
+OUTPUT_PATH = f"{PROJECT_PATH}/data/"
 
 # Root location of dicom files
 DICOM_ROOT = '/mridata/cbu'
@@ -69,14 +74,16 @@ cbu_codes = list(SUBJECT_LIST.values())
 dicom_paths = [f"{DICOM_ROOT}/{code}_{PROJECT_CODE}" for code in cbu_codes]
 
 # Convert subject and dicom lists to space-separated strings as needed for the bash script
-subject_ids_list = ' '.join(subject_ids)
-dicom_paths_list = ' '.join(dicom_paths)
+SUBJECT_ID_LIST = ' '.join(subject_ids)
+DICOM_PATH_LIST = ' '.join(dicom_paths)
 
 # Get the number of subjects to know how many jobs to submit
 n_subjects = len(SUBJECT_LIST)  
 
 # Specify and create a folder for the job logs
-JOB_OUTPUT_PATH = f"{OUTPUT_PATH}/job_logs"
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__)) # this script's path
+
+JOB_OUTPUT_PATH = f"{SCRIPT_PATH}/job_logs"
 if not os.path.isdir(JOB_OUTPUT_PATH):
     os.makedirs(JOB_OUTPUT_PATH)
  
@@ -107,13 +114,13 @@ if not os.path.isfile(HEUDICONV_SCRIPT):
 # ------------------------------------------------------------
     
 bash_command = (
-    f"sbatch --array=0-{n_subjects - 1} "
+    f"sbatch "
+    f"--array=0-{n_subjects - 1} "
     f"--job-name=heudiconv "
     f"--output={JOB_OUTPUT_PATH}/heudiconv_job_%A_%a.out "
     f"--error={JOB_OUTPUT_PATH}/heudiconv_job_%A_%a.err "
-    f"{HEUDICONV_SCRIPT} '{subject_ids_list}' '{dicom_paths_list}' '{HEURISTIC_FILE}' '{OUTPUT_PATH}'"
+    f"{HEUDICONV_SCRIPT} '{SUBJECT_ID_LIST}' '{DICOM_PATH_LIST}' '{HEURISTIC_FILE}' '{OUTPUT_PATH}'"
 )
-
 subprocess.run(bash_command, shell=True, check=True)
 
 # ------------------------------------------------------------
