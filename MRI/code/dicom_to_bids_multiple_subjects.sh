@@ -18,8 +18,8 @@
 # ------------------------------------------------------------
 
 #SBATCH --job-name=heudiconv_%a
-#SBATCH --output=/imaging/correia/da05/wiki/BIDS_conversion/MRI/code/job_logs/heudiconv_job_%A_%a.out
-#SBATCH --error=/imaging/correia/da05/wiki/BIDS_conversion/MRI/code/job_logs/heudiconv_job_%A_%a.err
+#SBATCH --output=/imaging/correia/da05/wiki/BIDS_conversion/MRI/work/heudiconv_job_logs/heudiconv_job_%A_%a.out
+#SBATCH --error=/imaging/correia/da05/wiki/BIDS_conversion/MRI/work/heudiconv_job_logs/heudiconv_job_%A_%a.err
 #SBATCH --array=1-3 # Adjust the array range to match which subjects you want to process
 
 # ------------------------------------------------------------

@@ -81,9 +81,7 @@ DICOM_PATH_LIST = ' '.join(dicom_paths)
 n_subjects = len(SUBJECT_LIST)  
 
 # Specify and create a folder for the job logs
-SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__)) # this script's path
-
-JOB_OUTPUT_PATH = f"{SCRIPT_PATH}/job_logs"
+JOB_OUTPUT_PATH = f"{PROJECT_PATH}/work/heudiconv_job_logs"
 if not os.path.isdir(JOB_OUTPUT_PATH):
     os.makedirs(JOB_OUTPUT_PATH)
  
