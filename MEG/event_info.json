@@ -1,0 +1,16 @@
+{
+    "trial_start": 10,
+    "trial_end": 11, 
+    "written/match": 1,
+    "written/tot_mismatch": 2, 
+    "written/part_mismatch_on": 3,
+    "written/part_mismatch_off": 4,
+    "spoken/match": 5,
+    "spoken/tot_mismatch": 6, 
+    "spoken/part_mismatch_on": 7,
+    "spoken/part_mismatch_off": 8,
+    "response/def_same": 21,
+    "response/prob_same": 22,
+    "response/prob_different": 23,
+    "response/def_different": 24
+}
