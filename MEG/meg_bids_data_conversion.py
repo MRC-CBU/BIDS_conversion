@@ -221,7 +221,7 @@ def process_subject(
 if __name__ == "__main__":
     # Parse command line arguments
     argparser = ArgumentParser(description='Convert MEG data to BIDS format')
-    argparser.add_argument('--MEG_system',
+    argparser.add_argument('--meg_system',
                            default='triux', 
                            help='The MEG system used to record the data',
                            type=str, 
@@ -244,13 +244,18 @@ if __name__ == "__main__":
                            default=True,
                            help='Process the structural MRI data and add to the BIDS dataset',
                            type=bool)
+    argparser.add_argument('--delete_source',
+                           default=True,
+                           help='Delete the temporary sourcedata folder after the conversion',
+                           type=bool)
     
     args = argparser.parse_args()
-    meg_system = args.MEG_system
+    meg_system = args.meg_system
     purge_folders = args.purge_folders
     fix_eeg_locations = args.fix_eeg_locations
     adjust_event_times = args.adjust_event_times
     process_structural = args.process_structural
+    delete_source = args.delete_source
 
     # Check if project folder exists
     assert op.exists(cfg.project_root), "Project folder not found. Please check the project_root variable in config.py"
@@ -293,5 +298,5 @@ if __name__ == "__main__":
         # end of loop through subjects
 
     # Purge the temporary sourcedata folder after the conversion
-    if op.exists(cfg.sourcedata_root):
+    if delete_source and op.exists(cfg.sourcedata_root):
         shutil.rmtree(cfg.sourcedata_root)
