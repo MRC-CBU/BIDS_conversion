@@ -2,14 +2,14 @@
 
 ## Table of Contents
 
-- [Introduction](introduction)
+- [Introduction](#introduction)
 - [The main steps](#the-main-steps)
-- [Where are your raw data](where-are-your-raw-data)
-- [DICOM to BIDS using HeuDiConv](dicom-to-bids-using-heudiconv)
-- [Converting multiple subjects in parallel using SLURM](converting-multiple-subjects-in-parallel-using-SLURM)
-- [Validate the BIDS dataset](validate-the-bids-dataset)
-- [More use cases](more-use-cases)
-- [Code examples](code-examples)
+- [Where are your raw data](#where-are-your-raw-data)
+- [DICOM to BIDS using HeuDiConv](#dicom-to-bids-using-heudiconv)
+- [Converting multiple subjects in parallel using SLURM](#converting-multiple-subjects-in-parallel-using-SLURM)
+- [Validate the BIDS dataset](#validate-the-bids-dataset)
+- [More use cases](#more-use-cases)
+- [Code examples](#code-examples)
 
 ## Introduction
 
