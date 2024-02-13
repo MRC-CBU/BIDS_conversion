@@ -7,3 +7,5 @@ It is highly recommended to have your data organised in BIDS! We have created tw
 * [MRI to BIDS](MRI)
 
 * [MEG/EEG to BIDS](MEG)
+
+ The tutorials are CBU specific, but can be easily adapted to any other source of raw data and computing system.
