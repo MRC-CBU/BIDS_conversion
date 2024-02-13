@@ -4,3 +4,4 @@ images
 __pycache__
 slurm*
 job_logs
+.vscode
