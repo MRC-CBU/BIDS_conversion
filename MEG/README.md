@@ -1,0 +1,89 @@
+# Converting CBU MEG/EEG data to BIDS format
+## Introduction
+This document describes the steps to convert raw MEG/EEG data from the CBU MEG scanner to BIDS format. The BIDS format is a standard for organizing and describing neuroimaging and behavioural data. It is designed to make data sharing and analysis easier. The BIDS format is described in detail at [bids.neuroimaging.io](https://bids.neuroimaging.io/). The extension for MEG data is described at the [bids-specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetoencephalography.html).
+
+The conversion process detailed below is done using the `mne-bids` Python package. The `mne-bids` package provides tools for converting raw MEG/EEG data to BIDS format. The `mne-bids` package is described in detail at [mne-bids](https://mne.tools/mne-bids/stable/index.html).
+
+## The main steps
+After downloading the scripts in this repository, you will need to do the following to convert your raw MEG data to BIDS format:
+1. Update the `config.py` file with the appropriate project specific path information. 
+2. Update the `subject_info.json` file with the appropriate information for each subject. 
+3. Update the `event_info.json` file with information on the event values (triggers) and their labels saved with you raw MEG data. 
+4. run `meg_bids_data_conversion.py`
+
+You can find detailed instructions on each of these steps below. 
+
+## Where are your data stored?
+### Raw MEG data
+The raw data from the CBU MEG scanner are stored at `/megdata/cbu/[project_code]/[meg_id]/[yymmdd]/`, where `project_code` is the unique identifier of your MEG project, the `meg_id` is the participant's unique identifier and `yymmdd` is the date of the scan. You can see all your participant scan directories by typing a command like this in a terminal (replace `speech_misperception` with your project code): 
+```console
+ls -d /megdata/cbu/speech_misperception/*/*
+/megdata/cbu/speech_misperception/meg23_016/230210  
+/megdata/cbu/speech_misperception/meg23_042/230302  
+/megdata/cbu/speech_misperception/meg23_068/230317  
+/megdata/cbu/speech_misperception/meg23_096/230406
+...
+```
+### Empty room recordings
+As a standard practice, empty room recordings are saved along with the corresponding raw data in the BIDS repository. The best practice is to ask your operateor to save your own empty room recording at the beginning of each recording session, so that your empty room file is stored along with the raw files for each session. 
+
+Alternatively, you can use the empty room recordings made by the MEG operators at the beginning of the day of your MEG recording sessions. For each MEG recording day, you can find these empty room recordings in `/megdata/cbu/camtest/no_name/[yymmdd]/` where  `yymmdd` is the date of the scan. 
+
+### Structural MRI
+Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom-bids#Where_are_your_raw_data) on how to find the MRI scans belonging to your MEG participant. You will need what's referred to as `subject code` and `project code` in the wiki page to be able to locate a particular participant. These could be structural scans which you collected or you could reuse already existing structural scans of your participants if they had been scanned at the CBU before. In the latter case, ask Matthew Sharrock to locate these scans for you. 
+
+## Detailed instructions
+1. **Update the `config.py` file with the appropriate project specific path information.** 
+    - Update the `project_root` variable so that it points to the root folder of your project
+    - By default, the following folder structure is assumed:
+        ```
+        project_root
+        ├── data
+        │   ├── rawdata
+        │   ├── sourcedata
+        ```
+    - Please update the `data_root`, `bids_raw_root` and `sourcedata_root` variables if you wish to set up a different folder structure. 
+    - `source_root` is the folder where the temporary MEG and MRI data will be saved during the conversion process and will be deleted after the conversion is complete. You can change this behaviour by setting the `delete_source` variable to `False`. 
+2. **Update the `subject_info.json` file with the appropriate information for each subject.**
+    - The `subject_info.json` file contains information about each participant. This information is used in the the BIDS conversion process. 
+    - Each top level JSON object (or dictionary) in `subject_info.json` should have a key of number represented as a string (usually the serial order in which the data were collected) and should have the following sub dictionaries in their value:
+        - `bids_id`: The BIDS identifier for the participant, corresponding to the ['sub' BIDS entity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#sub). This should be a string.
+        - `meg_id`: The unique identifier for the participant in the MEG data repository.
+        - `meg_date`: The date of the MEG recording session in the format `yymmdd`.
+        - `meg_raw_dir`: The path to the directory containing the raw MEG data for the participant.
+        - `meg_emptyroom_dir`: The path to the directory containing the empty room recording for the participant. Could be the same as `meg_raw_dir` or different. 
+        - `meg_raw_files`: list of dictionaries containing information about the raw MEG files for the participant. Each dictionary should have the following key-value pairs: 
+            - `run`: The run number for the raw MEG file corresponding to the ['run' BIDS entity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#run). This should be a string.
+            - `task`: The name of the task performed during the run, corresponding to the ['task' BIDS entity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#task). This should be a string.
+            - `file`: The name of the raw MEG file. This should be a string with file extension included. 
+        - `meg_bad_channels`: list of bad channels for the participant as noted by the MEG operator during the recording session. This should be a list of stringsi in the format of `MEG#### or EEG###`, where `#` represents channel numbers.
+        - `mri_id`: The unique identifier for the participant's MRI scan. This should be a string.
+        - `mri_date`: The date of the MRI scan in the format `yymmdd`.
+        - `mri_nii_file`: The name of the NIfTI file for the participant's MRI scan after conversion from DICOMM format. This should be a string with file extension included.
+        - `mri_dcm_dir`: The path to the directory containing the DICOMM files for the participant's MRI scan. This should be a string. 
+    - Simply copy over the example JSON object in `subject_info.json` as many times as many subjects you have in your dataset and update the values for each key as appropriate. 
+    - **Note**: currently it is assumed that the MEG data were collected in a single session. If you have multiple MEG recording sessions for a participant, you will need to add the ['ses' BIDS identity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#ses) to the `meg_raw_files` dictionary and have separate `meg_date` for each session. You'll also need to modify the code in `meg_bids_data_conversion.py` to handle these changes. 
+3. **Update the `event_info.json` file**
+    - The `event_info.json` file contains information about the event values (triggers) and their labels saved with the raw MEG data. This information is used in the the BIDS conversion process. 
+    - Each key-value pair in the JSON object is a mapping of the event label to its value (the trigger recorded in the MEG file). The key should be the label as a string and the value should be the event value (trigger) as an integer.
+    - Refer to this [mne-python tutorial](https://mne.tools/stable/auto_tutorials/raw/20_event_arrays.html#mapping-event-ids-to-trial-descriptors) on how to best map event IDs to trial descriptors. 
+4. **Run `meg_bids_data_conversion.py`**
+    - The `meg_bids_data_conversion.py` script is the main script that does the conversion of the raw MEG data to BIDS format. 
+    - The script can be run from the command line as follows:
+        ```console
+        cd /path/to/your/project_root
+        python meg_bids_data_conversion.py
+        ```
+    - The script takes the following command line arguments:
+        - `--meg_system`: The MEG system used to collect the data. This should be a string. The default value is `triux` for the new system. Alternatively it can be `vectorview` for the old system.
+        - `--purge_folders`: A flag to indicate whether to delete the existing BIDS folders before conversion to avoid any conflicts. Recommended, but be careful not to delete important files. This should be a boolean. The default value is `True`. 
+        - `--fix_eeg_locations`: A flag to indicate whether to fix the EEG channel locations.  When EEG channels > 60 as at CBU, the EEG channel location obtained from Polhemus  digitiser is not copied properly to Neuromag acquisition software. Therefore must apply mne_check_eeg_locations to data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). This should be a boolean. The default value is `True`. 
+        - `--adjust_event_times`: A flag to indicate whether to adjust the event times to account for the audio and visua latencies. Current (as of 02/2023) auditory and visual latency values are given in `config.py`. If you use this functionality make sure to update the condition labels for visual and/or auditory events in the `process_subject` function in `meg_bids_data_conversion.py` to the labels you defined in `event_info.json`. This should be a boolean. The default value is `True`.
+        - `--process_structural`: A flag to indicate whether to process the structural MRI data. This should be a boolean. The default value is `True`. 
+        - `--delete_source`: A flag to indicate whether to delete the temporary MEG and MRI data saved during the conversion process. This should be a boolean. The default value is `True`. 
+    - The script will convert the raw MEG data for  all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
+    - Make sure to keep `meg_bids_data_conversion.py`, `config.py`, `subject_info.json` and `event_info.json` in the same directory.
+  
+
+
+
