@@ -4,6 +4,19 @@ This document describes the steps to convert raw MEG/EEG data from the CBU MEG s
 
 The conversion process detailed below is done using the `mne-bids` Python package. The `mne-bids` package provides tools for converting raw MEG/EEG data to BIDS format. The `mne-bids` package is described in detail at [mne-bids](https://mne.tools/mne-bids/stable/index.html).
 
+## Installation
+- This tutorial assumes that you are running the conversion process on the CBU linux cluster.
+- Simply download the scripts in this repository to your local folder.
+- Dependencies: 
+  - Python 3.7 or later
+  - MNE-Python 1.15 or later
+  - MNE-BIDS 0.12 or later
+  - dcm2niix
+- All the required packages are installed on the CBU cluster under the `mne1.5.0_0` conda environment. You can activate this environment by typing the following command in a terminal:
+  ```console
+  conda activate mne1.5.0_0
+  ```
+
 ## The main steps
 After downloading the scripts in this repository, you will need to do the following to convert your raw MEG data to BIDS format:
 1. Update the `config.py` file with the appropriate project specific path information. 
@@ -69,16 +82,16 @@ Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom
     - Refer to this [mne-python tutorial](https://mne.tools/stable/auto_tutorials/raw/20_event_arrays.html#mapping-event-ids-to-trial-descriptors) on how to best map event IDs to trial descriptors. 
 4. **Run `meg_bids_data_conversion.py`**
     - The `meg_bids_data_conversion.py` script is the main script that does the conversion of the raw MEG data to BIDS format. 
-    - The script can be run from the command line as follows:
+    - The script can be run from the command line as follows (make sure to activate the conda environment containing the required packages before running the script, see the installation section for how to do this):
         ```console
-        cd /path/to/your/project_root
+        cd /path/to/your/folder/containing/the/scripts
         python meg_bids_data_conversion.py
         ```
     - The script takes the following command line arguments:
         - `--meg_system`: The MEG system used to collect the data. This should be a string. The default value is `triux` for the new system. Alternatively it can be `vectorview` for the old system.
         - `--purge_folders`: A flag to indicate whether to delete the existing BIDS folders before conversion to avoid any conflicts. Recommended, but be careful not to delete important files. This should be a boolean. The default value is `True`. 
         - `--fix_eeg_locations`: A flag to indicate whether to fix the EEG channel locations.  When EEG channels > 60 as at CBU, the EEG channel location obtained from Polhemus  digitiser is not copied properly to Neuromag acquisition software. Therefore must apply mne_check_eeg_locations to data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). This should be a boolean. The default value is `True`. 
-        - `--adjust_event_times`: A flag to indicate whether to adjust the event times to account for the audio and visua latencies. Current (as of 02/2023) auditory and visual latency values are given in `config.py`. If you use this functionality make sure to update the condition labels for visual and/or auditory events in the `process_subject` function in `meg_bids_data_conversion.py` to the labels you defined in `event_info.json`. This should be a boolean. The default value is `True`.
+        - `--adjust_event_times`: A flag to indicate whether to adjust the event times to account for the audio and visual latencies. Current (as of 02/2023) auditory and visual latency values are given in `config.py`. If you use this functionality make sure to update the condition labels for visual and/or auditory events in the `process_subject` function in `meg_bids_data_conversion.py` to the labels you defined in `event_info.json`. This should be a boolean. The default value is `True`.
         - `--process_structural`: A flag to indicate whether to process the structural MRI data. This should be a boolean. The default value is `True`. 
         - `--delete_source`: A flag to indicate whether to delete the temporary MEG and MRI data saved during the conversion process. This should be a boolean. The default value is `True`. 
     - The script will convert the raw MEG data for  all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
