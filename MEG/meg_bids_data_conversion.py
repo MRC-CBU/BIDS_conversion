@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Description: MNE-BIDS data conversion script for SpeechMisperceptionMEEG data
+Description: MNE-BIDS data conversion script for MEG data collected at the CBU MEG lab.
+
+Acknowledgements: This script is based on the MNE-BIDS tutorial available at
+https://mne.tools/mne-bids/stable/auto_examples/convert_mne_sample.html
 
 Author: Mate Aller
+email:  mate.aller@mrc-cbu.cam.ac.uk
 
 """
 import json, mne, os, shutil
