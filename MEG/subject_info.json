@@ -1,0 +1,50 @@
+{ 
+    "1": {
+        "bids_id": "01", 
+        "meg_id": "", 
+        "meg_date": "",
+        "meg_raw_dir": "",
+        "meg_emptyroom_dir": "",
+        "meg_raw_files": [
+            {
+                "run": "01",
+                "task": "main",
+                "file": "run1_raw.fif"
+            },
+            {
+                "run": "02",
+                "task": "main",
+                "file": "run2_raw.fif"
+            },
+            {
+                "run": "03",
+                "task": "main",
+                "file": "run3_raw.fif"
+            },
+            {
+                "run": "04",
+                "task": "main",
+                "file": "run4_raw.fif"
+            },
+            {
+                "run": "05",
+                "task": "main",
+                "file": "run5_raw.fif"
+            },
+            {
+                "run": "emptyroom",
+                "task": null,
+                "file": "emptyroom_raw.fif"
+            }
+        ],
+        "meg_bad_channels": [
+            "EEG022",
+            "EEG050",
+            "EEG063"
+        ],
+        "mri_id": "",
+        "mri_date": "",
+        "mri_nii_file": "sub-01_T1w.nii",
+        "mri_dcm_dir": ""
+    }
+}
