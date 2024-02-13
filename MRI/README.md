@@ -1,14 +1,24 @@
 # Converting CBU MRI DICOM data to BIDS format
 
-## Table of Contents
+## Table of contents
 
 - [Introduction](#introduction)
 - [The main steps](#the-main-steps)
 - [Where are your raw data](#where-are-your-raw-data)
 - [DICOM to BIDS using HeuDiConv](#dicom-to-bids-using-heudiconv)
-- [Converting multiple subjects in parallel using SLURM](#converting-multiple-subjects-in-parallel-using-SLURM)
+  - [Step 1: Discovering your scans](#step-1-discovering-your-scans)
+  - [Step 2: Creating a heuristic file](#step-2-creating-a-heuristic-file)
+  - [Step 3: Converting the data](#step-3-converting-the-data)
+- [Converting multiple subjects in parallel using SLURM](#converting-multiple-subjects-in-parallel-using-slurm)
+  - [Example 1](#example-1)
+  - [Example 2 (recommended)](#example-2-recommended)
+    - [A generic HeuDiConv script](#a-generic-heudiconv-script)
+    - [Project-specific script with the "sbatch" command](#project-specific-script-with-the-sbatch-command)
+    - [Checking your job status](#checking-your-job-status)
 - [Validate the BIDS dataset](#validate-the-bids-dataset)
 - [More use cases](#more-use-cases)
+  - [Multi-band acquisition with single-band reference scans (''sbref'')](#multi-band-acquisition-with-single-band-reference-scans-sbref)
+  - [Multi-echo data](#multi-echo-data)
 - [Code examples](#code-examples)
 
 ## Introduction
@@ -217,19 +227,19 @@ conda deactivate
 
 Once you have created and saved your script, you can execute it. To do that, in a terminal, navigate to the directory where your script is located (I recommend putting your scripts in the [PROJECT_PATH]/code/ directory), e.g., in my case it would be:
 
-```bash
+```console
 cd /imaging/correia/da05/wiki/BIDS_conversion/MRI/code
 ```
 
 And then run this command:
 
-```bash
+```console
 ./dicom_discover.sh
 ```
 
 If everything is working fine, you will see an output like this:
 
-```bash
+```console
 WARNING: Could not check for version updates: Connection to server could not be made
 INFO: Running heudiconv version 0.11.6 latest Unknown
 INFO: Analyzing 7145 dicoms
