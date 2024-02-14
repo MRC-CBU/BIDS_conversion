@@ -1,8 +1,10 @@
 # Converting CBU MEG/EEG data to BIDS format
 ## Introduction
-This document describes the steps to convert raw MEG/EEG data from the CBU MEG scanner to BIDS format. The BIDS format is a standard for organizing and describing neuroimaging and behavioural data. It is designed to make data sharing and analysis easier. The BIDS format is described in detail at [bids.neuroimaging.io](https://bids.neuroimaging.io/). The extension for MEG data is described at the [bids-specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetoencephalography.html).
+This document describes the steps to convert raw MEG/EEG data from the CBU MEG scanner to BIDS format. The BIDS format is a standard for organizing and describing neuroimaging and behavioural data. It is designed to make data sharing and analysis easier. The BIDS format is described in detail at [bids.neuroimaging.io](https://bids.neuroimaging.io/). The extension for MEG data is described at the [bids-specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetoencephalography.html). 
 
 The conversion process detailed below is done using the `mne-bids` Python package. The `mne-bids` package provides tools for converting raw MEG/EEG data to BIDS format. The `mne-bids` package is described in detail at [mne-bids](https://mne.tools/mne-bids/stable/index.html).
+
+If you have any questions about this tutorial, please contact [Máté Aller](https://www.mrc-cbu.cam.ac.uk/people/mate.aller/). 
 
 ## Installation
 - This tutorial assumes that you are running the conversion process on the CBU linux cluster.
@@ -30,20 +32,16 @@ You can find detailed instructions on each of these steps below.
 ### Raw MEG data
 The raw data from the CBU MEG scanner are stored at `/megdata/cbu/[project_code]/[meg_id]/[yymmdd]/`, where `project_code` is the unique identifier of your MEG project, the `meg_id` is the participant's unique identifier and `yymmdd` is the date of the scan. You can see all your participant scan directories by typing a command like this in a terminal (replace `speech_misperception` with your project code): 
 ```console
-ls -d /megdata/cbu/speech_misperception/*/*
-/megdata/cbu/speech_misperception/meg23_016/230210  
-/megdata/cbu/speech_misperception/meg23_042/230302  
-/megdata/cbu/speech_misperception/meg23_068/230317  
-/megdata/cbu/speech_misperception/meg23_096/230406
-...
+ls -d /megdata/cbu/[project_code]/*/*
 ```
+
 ### Empty room recordings
 As a standard practice, empty room recordings are saved along with the corresponding raw data in the BIDS repository. The best practice is to ask your operateor to save your own empty room recording at the beginning of each recording session, so that your empty room file is stored along with the raw files for each session. 
 
 Alternatively, you can use the empty room recordings made by the MEG operators at the beginning of the day of your MEG recording sessions. For each MEG recording day, you can find these empty room recordings in `/megdata/cbu/camtest/no_name/[yymmdd]/` where  `yymmdd` is the date of the scan. 
 
 ### Structural MRI
-Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom-bids#Where_are_your_raw_data) on how to find the MRI scans belonging to your MEG participant. You will need what's referred to as `subject code` and `project code` in the wiki page to be able to locate a particular participant. These could be structural scans which you collected or you could reuse already existing structural scans of your participants if they had been scanned at the CBU before. In the latter case, ask the MRI administrator (mri.admin@mrc-cbu.cam.ac.uk) to locate these scans for you. 
+Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom-bids#Where_are_your_raw_data) on how to find the MRI scans belonging to your MEG participant. You will need what's referred to as `subject code` and `project code` in the wiki page to be able to locate a particular participant. These could be structural scans which you collected or you could reuse already existing structural scans of your participants if they had been scanned at the CBU before. In the latter case, ask the [MRI administrator](mailto:mri.admin@mrc-cbu.cam.ac.uk) to locate these scans for you. 
 
 ## Detailed instructions
 1. **Update the `config.py` file with the appropriate project specific path information.** 
@@ -96,6 +94,15 @@ Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom
         - `--delete_source`: A flag to indicate whether to delete the temporary MEG and MRI data saved during the conversion process. This should be a boolean. The default value is `True`. 
     - The script will convert the raw MEG data for  all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
     - Make sure to keep `meg_bids_data_conversion.py`, `config.py`, `subject_info.json` and `event_info.json` in the same directory.
+
+## Further steps
+### Add dataset description to your BIDS repository
+You can add a [dataset description file](https://bids-specification.readthedocs.io/en/latest/modality-agnostic-files.html#dataset-description) to your BIDS repository. [`mne_bids.make_dataset_description()`](https://mne.tools/mne-bids/stable/generated/mne_bids.make_dataset_description.html#mne_bids.make_dataset_description) provides a convenient way of generating this file. You can see how it is done at the end of this [mne-bids tutorial](https://mne.tools/mne-bids/stable/auto_examples/convert_mne_sample.html#)
+
+### Anonymize your BIDS repository for sharing
+As is, the BIDS repository generated by the conversion process is sufficient for you to work on, but it will contain information which in theory could be used along with other pieces of information obtained elsewhere to uniquely identify a participant. For example, the date of the recording is used in the BIDS dataset to link the meg raw data with the corresponding emptyroom recording is one such piece of information. 
+
+If you wish to share your data outside the CBU, you will need to anonymize the BIDS repository. Please read this [mne-bids tutorial](https://mne.tools/mne-bids/stable/auto_examples/anonymize_dataset.html) to learn more about anonymizing a BIDS repository. The package provides a convenient fucntion, [`mne_bids.anonymize_dataset()`](https://mne.tools/mne-bids/stable/generated/mne_bids.anonymize_dataset.html#mne_bids.anonymize_dataset) to do the heavy lifting for you. Keep in mind to double check your anonymized dataset if there are any such pieces of information left in the dataset. Ultimately it is your responsibility make sure that the dataset you're sharing is GDPR compliant. Please email the [methods group](mailto:methods@mrc-cbu.cam.ac.uk) if you have any questions about this.
   
 
 
