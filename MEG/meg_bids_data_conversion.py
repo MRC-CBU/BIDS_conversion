@@ -114,10 +114,18 @@ def process_subject(
 
     # read emptyroom file first and remove from the raw file list
     er_id = [i for i, file in enumerate(meg_raw_files) if file['run'] == 'emptyroom']
-    er_file_info = meg_raw_files.pop(er_id[0])
-    raw_er = mne.io.read_raw_fif(op.join(meg_emptyroom_dir, er_file_info['file']))
-    # specify power line frequency as required by BIDS
-    raw_er.info['line_freq'] = cfg.line_freq
+    if not er_id:
+        print(f"No emptyroom file found for sub-{subj_id_bids}. Proceeding without emptyroom file.")
+        process_emptyroom = False
+        raw_er = None
+    elif len(er_id) > 1:
+        raise ValueError(f"Multiple emptyroom files found for sub-{subj_id_bids}. Please check the subject_info.json file.")
+    else:
+        er_file_info = meg_raw_files.pop(er_id[0])
+        raw_er = mne.io.read_raw_fif(op.join(meg_emptyroom_dir, er_file_info['file']))
+        # specify power line frequency as required by BIDS
+        raw_er.info['line_freq'] = cfg.line_freq
+        process_emptyroom = True
     
     for meg_file_info in meg_raw_files:
 
@@ -181,7 +189,7 @@ def process_subject(
             bids_path_current_file, 
             events=events, 
             event_id=event_info, 
-            empty_room=raw_er,
+            empty_room=raw_er if process_emptyroom else None,
             overwrite=True, 
             allow_preload =True, 
             format = 'FIF')
@@ -219,7 +227,7 @@ def process_subject(
             landmarks=None, # Note, in this case sidecar file will not be saved
             verbose=True)
             
-        return
+    return
 
 
 if __name__ == "__main__":
