@@ -14,9 +14,9 @@ If you have any questions about this tutorial, please contact [Máté Aller](htt
   - MNE-Python 1.15 or later
   - MNE-BIDS 0.12 or later
   - dcm2niix
-- All the required packages are installed on the CBU cluster under the `mne1.5.0_0` conda environment. You can activate this environment by typing the following command in a terminal:
+- All the required packages are installed on the CBU cluster under the `mne1.6.1_0` conda environment. You can activate this environment by typing the following command in a terminal:
   ```console
-  conda activate mne1.5.0_0
+  conda activate mne1.6.1_0
   ```
 
 ## The main steps
@@ -87,12 +87,16 @@ Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom
         ```
     - The script takes the following command line arguments:
         - `--meg_system`: The MEG system used to collect the data. This should be a string. The default value is `triux` for the new system. Alternatively it can be `vectorview` for the old system.
-        - `--purge_folders`: A flag to indicate whether to delete the existing BIDS folders before conversion to avoid any conflicts. Recommended, but be careful not to delete important files. This should be a boolean. The default value is `True`. 
-        - `--fix_eeg_locations`: A flag to indicate whether to fix the EEG channel locations.  When EEG channels > 60 as at CBU, the EEG channel location obtained from Polhemus  digitiser is not copied properly to Neuromag acquisition software. Therefore you must apply mne_check_eeg_locations to your data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). This should be a boolean. The default value is `True`. 
-        - `--adjust_event_times`: A flag to indicate whether to adjust the event times to account for the audio and visual latencies. Current (as of 02/2023) auditory and visual latency values are given in `config.py`. If you use this functionality make sure to update the condition labels for visual and/or auditory events in the `process_subject` function in `meg_bids_data_conversion.py` to the labels you defined in `event_info.json`. This should be a boolean. The default value is `True`.
-        - `--process_structural`: A flag to indicate whether to process the structural MRI data. This should be a boolean. The default value is `True`. 
-        - `--delete_source`: A flag to indicate whether to delete the temporary MEG and MRI data saved during the conversion process. This should be a boolean. The default value is `True`. 
-    - The script will convert the raw MEG data for  all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
+        - `--keep_existing_folders`: If specified, it indicates to keep the existing BIDS folders before conversion. By default they are purged to avoid any conflicts which is recommended, but be careful not to delete important files.  
+        - `--fix_eeg_locations`: If specified, it indicates to fix the EEG channel locations. When EEG channels > 60 as at CBU, the EEG channel location obtained from Polhemus  digitiser is not copied properly to Neuromag acquisition software. Therefore you must apply mne_check_eeg_locations to your data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). By default EEG channel locations are not fixed. 
+        - `--adjust_event_times`: If specified, it indicates to adjust the event times to account for the audio and visual latencies. Current (as of 02/2023) auditory and visual latency values are given in `config.py`. If you use this functionality make sure to update the condition labels for visual and/or auditory events in the `process_subject` function in `meg_bids_data_conversion.py` to the labels you defined in `event_info.json`. By default event times are not adjusted.
+        - `--process_structural`: If specified, it indicates to process the structural MRI data. By default structural MRI data are not processed.  
+        - `--keep_source_data`: If specified, it indicates to keep the temporary MEG and MRI data saved during the conversion process. By default the source data are deleted after the conversion is complete. 
+    - Example usage with fixing EEG locations, adjusting event times and processing structural MRI data
+        ```console
+        python meg_bids_data_conversion.py --fix_eeg_locations --adjust_event_times --process_structural 
+        ```
+    - The script will convert the raw MEG data for all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
     - Make sure to keep `meg_bids_data_conversion.py`, `config.py`, `subject_info.json` and `event_info.json` in the same directory.
 
 ## Further steps
