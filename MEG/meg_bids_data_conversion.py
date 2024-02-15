@@ -54,9 +54,9 @@ def process_subject(
     subject_info,
     event_info,
     meg_system='triux',
-    fix_eeg_locations=True,
-    adjust_event_times=True,
-    process_structural=True
+    fix_eeg_locations=False,
+    adjust_event_times=False,
+    process_structural=False
 ):
     """Convert MEG data to BIDS format.
         Inputs:
@@ -235,44 +235,50 @@ if __name__ == "__main__":
     argparser = ArgumentParser(description='Convert MEG data to BIDS format')
     argparser.add_argument('--meg_system',
                            default='triux', 
-                           help='The MEG system used to record the data',
+                           help='''The MEG system used to record the data. 
+                                   Must be either 'triux' or 'vectorview'.
+                                ''',
                            type=str, 
                            choices=['triux', 'vectorview'])
-    argparser.add_argument('--purge_folders',
-                           default=True, 
-                           help='''Purge the output folders before running the conversion. 
-                                   Recommended, but be careful not to delete important data!
-                                ''',
-                           type=bool)
+    argparser.add_argument('--keep_existing_folders',
+                           action='store_true', 
+                           help='''Keep the existing output folders before running the conversion. 
+                                   By default, they are purged, which is recommended to avoid
+                                   conflicts, but be careful not to delete important data!
+                                ''')
     argparser.add_argument('--fix_eeg_locations',
-                           default=True, 
-                           help='Check and fix EEG locations in the raw data',
-                           type=bool)  
+                           action='store_true', 
+                           help='''Check and fix EEG locations in the raw data. 
+                                   By default the EEG locations are not checked.
+                                ''')  
     argparser.add_argument('--adjust_event_times',
-                           default=True, 
-                           help='Adjust the event times to account for the audio and visual latencies',
-                           type=bool)
+                           action='store_true', 
+                           help='''Adjust the event times to account for the audio and visual latencies. 
+                                   By default the event times are left as is.
+                                ''')
     argparser.add_argument('--process_structural',
-                           default=True,
-                           help='Process the structural MRI data and add to the BIDS dataset',
-                           type=bool)
-    argparser.add_argument('--delete_source',
-                           default=True,
-                           help='Delete the temporary sourcedata folder after the conversion',
-                           type=bool)
+                           action='store_true',
+                           help='''Process the structural MRI data and add to the BIDS dataset. 
+                                   By default structural MRI dat are not processed.
+                                ''')
+    argparser.add_argument('--keep_source_data',
+                           action='store_true',
+                           help='''Keep the temporary sourcedata folder after the conversion. 
+                                   By default the sourcedata folder is purged after the conversion.
+                                ''')
     
     args = argparser.parse_args()
     meg_system = args.meg_system
-    purge_folders = args.purge_folders
+    keep_existing_folders = args.keep_existing_folders
     fix_eeg_locations = args.fix_eeg_locations
     adjust_event_times = args.adjust_event_times
     process_structural = args.process_structural
-    delete_source = args.delete_source
+    keep_source_data = args.keep_source_data
 
     # Check if project folder exists
     assert op.exists(cfg.project_root), "Project folder not found. Please check the project_root variable in config.py"
 
-    if purge_folders:
+    if not keep_existing_folders:
         # If output directory exist clear it to make sure doesn't contain leftover files 
         # from previous test and example runs. But be careful not to delete important data!
         if op.exists(cfg.bids_raw_root):
@@ -310,5 +316,5 @@ if __name__ == "__main__":
         # end of loop through subjects
 
     # Purge the temporary sourcedata folder after the conversion
-    if delete_source and op.exists(cfg.sourcedata_root):
+    if (not keep_source_data) and op.exists(cfg.sourcedata_root):
         shutil.rmtree(cfg.sourcedata_root)
