@@ -299,12 +299,12 @@ if __name__ == "__main__":
         print("subject is: {} \n".format(ss))      
 
         # Skip subject if no BIDS id is provided
-        subject_info = subject_info[ss]
-        if subject_info['bids_id'] is None:
+        subject_info_current = subject_info[ss]
+        if subject_info_current['bids_id'] is None:
             continue
         
         # Process the subject
-        process_subject(subject_info, 
+        process_subject(subject_info_current, 
                         event_info, 
                         meg_system=meg_system,
                         fix_eeg_locations=fix_eeg_locations,
