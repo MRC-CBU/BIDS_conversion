@@ -69,15 +69,23 @@ def process_subject(
             meg_system: str
                 The MEG system used to record the data. Must be either 'triux' or 'vectorview'.
                 Default is 'triux'.
+            fix_eeg_locations: bool
+                If True, the EEG locations in the raw data will be checked and fixed if necessary.
+                Default is False.
             adjust_event_times: bool
                 If True, the event times will be adjusted to account for the audio and visual latencies.
-                Default is True.
+                Default is False.
             process_structural: bool
                 If True, the structural MRI data will be processed and added to the BIDS dataset.
-                Default is True.
+                Default is False.
         Description:
             This function converts the MEG data to BIDS format. It reads the raw MEG data
-            and the structuraly MRI data, and writes the data to the BIDS dataset."""
+            and writes the data to the BIDS dataset.
+            Optionally, it can also: 
+            - check and fix EEG locations in the raw data
+            - adjust the event times to account for the audio and visual latencies
+            - process the structural MRI data and add to the BIDS dataset
+    """
     
     # Check that the meg_system is valid
     assert meg_system in ['triux', 'vectorview'], "meg_system must be either 'triux' or 'vectorview'"
