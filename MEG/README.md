@@ -14,9 +14,9 @@ If you have any questions about this tutorial, please contact [Máté Aller](htt
   - MNE-Python 1.15 or later
   - MNE-BIDS 0.12 or later
   - dcm2niix
-- All the required packages are installed on the CBU cluster under the `mne1.6.1_0` conda environment. You can activate this environment by typing the following command in a terminal:
+- All the required packages are installed on the CBU cluster under the `mne1.6.1_0` conda environment in `/imaging/local/software/mne_python/`. You can activate this environment by typing the following command in a terminal:
   ```console
-  conda activate mne1.6.1_0
+  conda activate /imaging/local/software/mne_python/mne1.6.1_0
   ```
 
 ## The main steps
