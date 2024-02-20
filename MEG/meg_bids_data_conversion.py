@@ -173,20 +173,28 @@ def process_subject(
 
         if adjust_event_times:
             # Adjusting the event times to account for the audio and visual latencies
-            # You may or may not need to do this depending on your experiment
-            # Get the event ids for the written and spoken word events
-            audio_event_keys = [key for key in event_info.keys() if key.startswith('spoken')]
-            visual_event_keys = [key for key in event_info.keys() if key.startswith('written')]
-            audio_event_infos = [event_info[key] for key in audio_event_keys]
-            visual_event_infos = [event_info[key] for key in visual_event_keys]
+            # You may or may not need to do this depending on your experiment. 
+            # Define the visual and auditory event values as well as auditory and 
+            # visual latencies in config.py
+            print("Adjusting event times to account for the auditory and visual latencies.")
+            
             # Shift the spoken word events by the audio latency
-            events[np.isin(events[:, 2], audio_event_infos), 0] = (
-                events[np.isin(events[:, 2], audio_event_infos), 0] + 
-                int(cfg.audio_latency_sec * raw.info['sfreq']))
+            if cfg.auditory_event_names:
+                events[np.isin(events[:, 2], cfg.auditory_event_values), 0] = (
+                    events[np.isin(events[:, 2], cfg.auditory_event_values), 0] + 
+                    int(cfg.audio_latency_sec * raw.info['sfreq']))
+            else: 
+                print(("No auditory event values found in the event_info.json file. "
+                       "Skipping auditory event time adjustment."))
+            
             # Shift the visual word events by the visual latency
-            events[np.isin(events[:, 2], visual_event_infos), 0] = (
-                events[np.isin(events[:, 2], visual_event_infos), 0] + 
-                int(cfg.visual_latency_sec * raw.info['sfreq']))
+            if cfg.visual_event_names:
+                events[np.isin(events[:, 2], cfg.visual_event_values), 0] = (
+                    events[np.isin(events[:, 2], cfg.visual_event_values), 0] + 
+                    int(cfg.visual_latency_sec * raw.info['sfreq']))
+            else:
+                print(("No visual event values found in the event_info.json file. "
+                       "Skipping visual event time adjustment."))
 
         bids_path_current_file = (bids_path.copy()
                                            .update(run=meg_file_info['run'], 

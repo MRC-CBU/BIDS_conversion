@@ -1,4 +1,5 @@
 import os.path as op
+import json
 
 # ***********************************************************************
 # Project specific information, please update these to fit your project *
@@ -19,13 +20,25 @@ event_info_path = op.join(project_root, 'event_info.json')
 # the subjects in the experiment. See README.md for more information.
 subject_info_path = op.join(project_root, 'subject_info.json')
 
+# Define visual and auditory event values so their latencies can 
+# be adjusted as per the MEG system specifications. 
+# These should be lists of and lists of integers. 
+# Here I look up the event values from the event_info.json file (recommended), 
+# but you can also hard code these values. 
+# Load event info
+with open(event_info_path, 'r') as f:
+    event_info = json.load(f)
+auditory_event_names = [key for key in event_info.keys() if key.startswith('spoken')]
+visual_event_names = [key for key in event_info.keys() if key.startswith('written')]
+auditory_event_values = [event_info[key] for key in auditory_event_names]
+visual_event_values = [event_info[key] for key in visual_event_names]
 
 # *********************************************************************
 # MEG setup specific information, you should not need to change these *
 # *********************************************************************
 
-# Audio and viusal latencies as per CBU MEG system specifications at the 
-# time of recording: https://imaging.mrc-cbu.cam.ac.uk/meg/StimulusDetails
+# Audio and viusal latencies in seconds as per CBU MEG system specifications 
+# at the time of recording: https://imaging.mrc-cbu.cam.ac.uk/meg/StimulusDetails
 audio_latency_sec = 0.028
 visual_latency_sec = 0.034
 
