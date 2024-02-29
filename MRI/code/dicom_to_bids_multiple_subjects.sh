@@ -27,11 +27,6 @@
 # SLURM will create separate tasks for each array index.
 # The SLURM_ARRAY_TASK_ID will be used later in the script to select a subject from subjects list.
 
-
-sbatch --array=0-2 --job-name=heudiconv {HEUDICONV_SCRIPT} '{subject_ids_list}' '{dicom_paths_list}' '{HEURISTIC_FILE}' '{OUTPUT_PATH}'
-)
-
-
 # ------------------------------------------------------------
 #
 # !FILL IN THE VARIABLES BELOW!
@@ -74,7 +69,7 @@ SUBJECT_LIST["04"]="CBU090928"
 # ------------------------------------------------------------
 
 # A list of all the subject IDs
-subject_ids=(${!SUBJECT_LIST[@]})
+subject_ids=( "${!SUBJECT_LIST[@]}" )
 
 # Get the subject's ID for the current job
 subject_id=${subject_ids[$((SLURM_ARRAY_TASK_ID - 1))]}  # Subtract 1 because bash arrays are 0-indexed
@@ -90,7 +85,7 @@ DICOM_PATH="${DICOM_ROOT}/${cbu_code}_${PROJECT_CODE}"
 # ------------------------------------------------------------
 
 # Add some information to the job output
-echo "Processing subject ${subject} (${cbu_code})..."
+echo "Processing subject ${subject_id} (${cbu_code})..."
 
 # Check if the heuristic file exists. If not, add to the error output log (that's what >&2 does) and exit the script.
 if [ ! -f "$HEURISTIC_FILE" ]; then
@@ -123,7 +118,7 @@ conda deactivate
 # ------------------------------------------------------------
 # End of processing for the current subject
 # ------------------------------------------------------------
-echo "Finished processing subject ${subject} (${cbu_code})."
+echo "Finished processing subject ${subject_id} (${cbu_code})."
 
 # ============================================================
 # HeudiConv parameters:
