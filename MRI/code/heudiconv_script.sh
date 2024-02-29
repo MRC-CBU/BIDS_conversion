@@ -26,8 +26,8 @@
 # ------------------------------------------------------------
 # Parse the arguments passed to the script
 # ------------------------------------------------------------
-SUBJECT_ID_LIST=($1)
-DICOM_PATH_LIST=($2)
+SUBJECT_ID_LIST=("$1")
+DICOM_PATH_LIST=("$2")
 HEURISTIC_FILE="${3}"
 OUTPUT_PATH="${4}"
 
