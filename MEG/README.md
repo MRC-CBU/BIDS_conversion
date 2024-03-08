@@ -55,6 +55,7 @@ Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom
      ```
  - Please update the `data_root`, `bids_raw_root` and `sourcedata_root` variables if you wish to set up a different folder structure. `sourcedata_root` is the folder where the temporary MEG and MRI data will be saved during the conversion process and will be deleted after the conversion is complete. You can change this behaviour by setting the `delete_source` variable to `False`. 
  - Please update the `event_info_path` and `subject_info_path` variables if you wish to save the `event_info.json` and `subject_info.json` files in a different location.
+ - Plese update the `meg_system` variable depending on which MEG system was used to collect the data. This should be a string. The default value is `"triux"` for the new system. Alternatively it can be `"vectorview"` for the old system.
  - Please update the `event_channels` variable if you wish to specify the channels that contain the event triggers. This should be a list of strings. By default this is set to `["STI101"]`, which takes into account all the trigger channels in the MEG data (`STI001 - STI016`). Alternatively, you can specify certain trigger channels by their names, e.g. `["STI001", "STI002"]`. In this case, the event values will be extracted from the specified channels only. Please refer to [this](https://imaging.mrc-cbu.cam.ac.uk/meg/IdentifyingEventsWithTriggers) and [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/meg/Triggers) for more information on how triggers are encoded by the CBU MEG system and the common issues and pitfalls regarding reading events from `STI` channels.
  - Please update the `auditory_event_values` and `visual_event_values` lists if you wish to adjust the event times to account for the audio and visual latencies. `auditory_event_values` and `visual_event_values` are the event values (triggers) for auditory and visual events, respectively. These are used to adjust the event times to account for the audio and visual latencies. It is recommended to look up the event values from the event_info.json file, but they can also be hard coded in `config.py`. These should be lists of integers. If either is an empty list, the corresponding event times will not be adjusted. 
 ### 2. Update the `subject_info.json` file with the appropriate information for each subject.
@@ -88,18 +89,18 @@ Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom
       python meg_bids_data_conversion.py
       ```
   - The script takes the following command line arguments:
-      - `--meg_system`: The MEG system used to collect the data. This should be a string. The default value is `triux` for the new system. Alternatively it can be `vectorview` for the old system.
-      - `--keep_existing_folders`: If specified, it indicates to keep the existing BIDS folders before conversion. By default they are purged to avoid any conflicts which is recommended, but be careful not to delete important files.  
-      - `--fix_eeg_locations`: If specified, it indicates to fix the EEG channel locations. When EEG channels > 60 as at CBU, the EEG channel location obtained from Polhemus  digitiser is not copied properly to Neuromag acquisition software. Therefore you must apply mne_check_eeg_locations to your data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). By default EEG channel locations are not fixed. 
+      - `--keep_existing_folders`: If specified, it indicates to keep the existing BIDS folders before conversion. By default they are purged to avoid any conflicts which is recommended, but be careful not to delete important files.   
       - `--adjust_event_times`: If specified, it indicates to adjust the event times to account for the audio and visual latencies. Current (as of 02/2023) auditory and visual latency values are given in `config.py`. If you use this functionality make sure to set the `visual_event_values` and `auditory_event_values` lists in `config.py` to the desired values based on what is defined in `event_info.json`, see [point 1](#1-update-the-configpy-file-with-the-appropriate-project-specific-path-information) above. By default event times are not adjusted. 
       - `--process_structural`: If specified, it indicates to process the structural MRI data. By default structural MRI data are not processed.  
       - `--keep_source_data`: If specified, it indicates to keep the temporary MEG and MRI data saved during the conversion process. By default the source data are deleted after the conversion is complete. 
   - Example usage with fixing EEG locations, adjusting event times and processing structural MRI data
       ```console
-      python meg_bids_data_conversion.py --fix_eeg_locations --adjust_event_times --process_structural 
+      python meg_bids_data_conversion.py --adjust_event_times --process_structural 
       ```
   - The script will convert the raw MEG data for all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
+  - The script also fixes EEG channel locations if the data were collected using the old Vectorview system. With the old Vectorview system, for EEG channels > 60, the EEG channel locations obtained from Polhemus digitiser were not copied properly to Neuromag acquisition software. Therefore you must apply mne_check_eeg_locations to your data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). This step is not necessary for the new Triux system.
   - Make sure to keep `meg_bids_data_conversion.py`, `config.py`, `subject_info.json` and `event_info.json` in the same directory.
+  
 
 ## Further steps
 ### Add dataset description to your BIDS repository
