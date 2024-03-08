@@ -20,6 +20,10 @@ event_info_path = op.join(project_root, 'event_info.json')
 # the subjects in the experiment. See README.md for more information.
 subject_info_path = op.join(project_root, 'subject_info.json')
 
+# Channels to read the events from. By default, we read from the STI101 channel, 
+# which is the sum of all the trigger channels. Please refer to the 
+event_channels = ['STI101'] 
+
 # Define visual and auditory event values so their latencies can 
 # be adjusted as per the MEG system specifications. 
 # These should be lists of and lists of integers. 

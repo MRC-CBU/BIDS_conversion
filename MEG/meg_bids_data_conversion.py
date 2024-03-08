@@ -20,10 +20,48 @@ from argparse import ArgumentParser
 import config as cfg
 
 
-def _get_events_from_stim_channels(raw):
+def _check_config(cfg):
+    """Check the configuration file for required variables."""
+    required_vars = [
+        'project_root', 'data_root', 'bids_raw_root', 'sourcedata_root', 
+        'event_info_path', 'subject_info_path', 'event_channels', 
+        'auditory_event_names', 'visual_event_names', 'auditory_event_values', 
+        'visual_event_values', 'audio_latency_sec', 'visual_latency_sec', 
+        'cal_file_path_triux', 'ct_file_path_triux', 'cal_file_path_vectorview', 
+        'ct_file_path_vectorview'
+    ]
+    for var in required_vars:
+        assert hasattr(cfg, var), f"{var} is missing from the config.py file"
+    
+    # Checking specific config variables
+    # ----------------------------------
+    # Check if project folder exists
+    assert op.exists(cfg.project_root), "Project folder not found. Please check the project_root variable in config.py"
+    
+    # Check that the event_channels variable
+    assert isinstance(cfg.event_channels, list), "event_channels must be a list of strings. "
+    
+    assert cfg.event_channels, "event_channels cannot be an empty list"
+    
+    if 'STI101' in cfg.event_channels:
+        assert len(cfg.event_channels) == 1, "If you are using STI101 as the event channel, it should be the only channel in the event_channels list."
+    
+    return
+
+
+def _get_events_from_stim_channels(
+    raw, 
+    stim_channels = ['STI001', 'STI002', 'STI003', 'STI004', 
+                     'STI005', 'STI006', 'STI007', 'STI008']
+):
     """Get events from STI001-STI008 channels.
         Inputs:
             raw: mne.io.Raw object
+                The raw MEG data
+            stim_channels: list of str
+                The names of the binary STI channels. 
+                Default is ['STI001', 'STI002', 'STI003', 'STI004',
+                            'STI005', 'STI006', 'STI007', 'STI008']
         Outputs:
             events: numpy array of shape (n_events, 3)
         Description:
@@ -32,13 +70,12 @@ def _get_events_from_stim_channels(raw):
             it is necessary to get the trigger values from the binary STI channels dedicated to 
             the stimulus triggers (STI001-STI008) and combine them to get the decimal trigger values.
     """
-    binary_stim_channels = ['STI001', 'STI002', 'STI003', 'STI004', 'STI005', 'STI006', 'STI007', 'STI008']
-    stim_data = raw.get_data(picks=binary_stim_channels)
+    stim_data = raw.get_data(picks=stim_channels)
     # Combine binary STI channels to get decimal trigger values 
     # Values in STI channels should be 0 or 5
     # For each channel, substitute the nonzero values to the values encoded by that channel
     # see https://imaging.mrc-cbu.cam.ac.uk/meg/IdentifyingEventsWithTriggers
-    for i in range(len(binary_stim_channels)):
+    for i in range(len(stim_channels)):
         stim_data[i, np.where(stim_data[i, :] > 0)] = 2**i
     sti101_new = np.sum(stim_data, axis=0, keepdims=True)
     
@@ -162,9 +199,15 @@ def process_subject(
         # specify power line frequency as required by BIDS
         raw.info['line_freq'] = cfg.line_freq 
 
-        # Get events from stim channels only (STI001 - STI008). This prevents the response channels
-        # from being added to stimulus triggers and causing problems with the event values.
-        events = _get_events_from_stim_channels(raw)
+        # Get events from stim channels
+        if 'STI101' in cfg.event_channels:
+            # Use the STI101 channel to get the events
+            events = mne.find_events(raw, stim_channel='STI101', min_duration=0.002)
+        else: 
+            # Alternatively use only the specified stimulus channels. In this case these
+            # binary channels will be summed and converted to decimal values from wich the 
+            # events will be read.
+            events = _get_events_from_stim_channels(raw, cfg.event_channels)
         
         # Get the event value counts
         unique, counts = np.unique(events[:, 2], return_counts=True)
@@ -291,8 +334,8 @@ if __name__ == "__main__":
     process_structural = args.process_structural
     keep_source_data = args.keep_source_data
 
-    # Check if project folder exists
-    assert op.exists(cfg.project_root), "Project folder not found. Please check the project_root variable in config.py"
+    # Check the configuration file
+    _check_config(cfg)
 
     if not keep_existing_folders:
         # If output directory exist clear it to make sure doesn't contain leftover files 
