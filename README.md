@@ -4,8 +4,7 @@
 
 It is highly recommended to have your data organised in BIDS! We have created two tutorials on how to convert your raw data into BIDS: 
 
-* [MRI to BIDS](MRI)
-
 * [MEG/EEG to BIDS](MEG)
+* [MRI to BIDS](MRI)
 
  The tutorials are CBU specific, but can be easily adapted to any other source of raw data and computing system.
