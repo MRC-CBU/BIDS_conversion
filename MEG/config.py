@@ -28,6 +28,9 @@ meg_system = 'triux'  # or 'vectorview'
 # which is the sum of all the trigger channels. Please refer to the 
 event_channels = ['STI101'] 
 
+# Whether to adjust the event times for the audio and visual latencies.
+adjust_event_times = False
+
 # Define visual and auditory event values so their latencies can 
 # be adjusted as per the MEG system specifications. 
 # These should be lists of and lists of integers. 
@@ -40,6 +43,9 @@ auditory_event_names = [key for key in event_info.keys() if key.startswith('spok
 visual_event_names = [key for key in event_info.keys() if key.startswith('written')]
 auditory_event_values = [event_info[key] for key in auditory_event_names]
 visual_event_values = [event_info[key] for key in visual_event_names]
+
+# Whether to process the structural data. If you don't have structural data,
+process_structural = False
 
 # *********************************************************************
 # MEG setup specific information, you should not need to change these *

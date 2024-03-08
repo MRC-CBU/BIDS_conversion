@@ -49,6 +49,10 @@ def _check_config():
     if 'STI101' in cfg.event_channels:
         assert len(cfg.event_channels) == 1, "If you are using STI101 as the event channel, it should be the only channel in the event_channels list."
     
+    assert isinstance(cfg.adjust_event_times, bool), "adjust_event_times must be a boolean"
+
+    assert isinstance(cfg.process_structural, bool), "process_structural must be a boolean"
+
     return
 
 
@@ -93,8 +97,6 @@ def _get_events_from_stim_channels(
 def process_subject(
     subject_info,
     event_info,
-    adjust_event_times=False,
-    process_structural=False
 ):
     """Convert MEG data to BIDS format.
         Inputs:
@@ -104,12 +106,6 @@ def process_subject(
             event_info: dict
                 Dictionary containing information about the events in the experiment.
                 See README.md for more information.
-            adjust_event_times: bool
-                If True, the event times will be adjusted to account for the audio and visual latencies.
-                Default is False.
-            process_structural: bool
-                If True, the structural MRI data will be processed and added to the BIDS dataset.
-                Default is False.
         Description:
             This function converts the MEG data to BIDS format. It reads the raw MEG data
             and writes the data to the BIDS dataset.
@@ -117,6 +113,7 @@ def process_subject(
             - check and fix EEG locations in the raw data
             - adjust the event times to account for the audio and visual latencies
             - process the structural MRI data and add to the BIDS dataset
+            These options can be set in the config.py file.
     """
 
     # Define the fine-calibration and cross-talk files required for Maxfilter
@@ -208,7 +205,7 @@ def process_subject(
         print('Trigger value counts are: \n')
         print(dict(zip(unique, counts)))
 
-        if adjust_event_times:
+        if cfg.adjust_event_times:
             # Adjusting the event times to account for the audio and visual latencies
             # You may or may not need to do this depending on your experiment. 
             # Define the visual and auditory event values as well as auditory and 
@@ -257,7 +254,7 @@ def process_subject(
 
     # Add structural MRI data to the BIDS dataset
     # ------------------------------------------
-    if process_structural: 
+    if cfg.process_structural: 
         # First convert the original dicom mri file to temporary nifiti file using dcm2niix
         mri_path_dcm = subject_info['mri_dcm_dir']
         temp = subject_info['mri_nii_file']
@@ -292,16 +289,6 @@ if __name__ == "__main__":
                                    By default, they are purged, which is recommended to avoid
                                    conflicts, but be careful not to delete important data!
                                 ''')
-    argparser.add_argument('--adjust_event_times',
-                           action='store_true', 
-                           help='''Adjust the event times to account for the audio and visual latencies. 
-                                   By default the event times are left as is.
-                                ''')
-    argparser.add_argument('--process_structural',
-                           action='store_true',
-                           help='''Process the structural MRI data and add to the BIDS dataset. 
-                                   By default structural MRI dat are not processed.
-                                ''')
     argparser.add_argument('--keep_source_data',
                            action='store_true',
                            help='''Keep the temporary sourcedata folder after the conversion. 
@@ -310,8 +297,6 @@ if __name__ == "__main__":
     
     args = argparser.parse_args()
     keep_existing_folders = args.keep_existing_folders
-    adjust_event_times = args.adjust_event_times
-    process_structural = args.process_structural
     keep_source_data = args.keep_source_data
 
     # Check the configuration file
@@ -344,9 +329,7 @@ if __name__ == "__main__":
         
         # Process the subject
         process_subject(subject_info_current, 
-                        event_info, 
-                        adjust_event_times=adjust_event_times,
-                        process_structural=process_structural)
+                        event_info)
         
         print("finished subject and moving on")
 
