@@ -6,8 +6,8 @@
   - [Table of contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
-    - [Running conversion on the CBU Linux cluster](#running-conversion-on-the-cbu-linux-cluster)
-    - [Running the conversion outside of the CBU Linux cluser](#running-the-conversion-outside-of-the-cbu-linux-cluser)
+    - [Using CBU Linux cluster](#using-cbu-linux-cluster)
+    - [If not using CBU Linux cluser](#if-not-using-cbu-linux-cluser)
   - [The main steps](#the-main-steps)
   - [Where are your raw data](#where-are-your-raw-data)
   - [DICOM to BIDS using HeuDiConv](#dicom-to-bids-using-heudiconv)
@@ -34,11 +34,11 @@ To start working with your MRI data, you need to convert the raw `DICOM` format 
 
 Download the scripts from this repository's [code](code) folder to your local folder.
 
-### Running conversion on the CBU Linux cluster
+### Using CBU Linux cluster
 
 This tutorial assumes that you are running the conversion on the CBU Linux cluster. All required packages are installed on the CBU cluster under the `heudiconv` conda environment. It will be activated by the scripts themselves, you don't have to activate it.
 
-### Running the conversion outside of the CBU Linux cluser
+### If not using CBU Linux cluser
 
 If you are not running the conversion on the CBU cluster, you need to have the following installed:
 
@@ -46,7 +46,7 @@ If you are not running the conversion on the CBU cluster, you need to have the f
 - [heudiconv](https://heudiconv.readthedocs.io/en/latest/) `pip install heudiconv`
 - [dcm2niix](https://github.com/rordenlab/dcm2niix) `pip install dcm2niix`
 
-To automatically create an environment with the required packages, you can use the [environment.yml](code/dicom_to_bids_single_subject.sh) file available in the [code](code) directory. To do that use the following command: `conda env create -f environment.yml`.
+To automatically create an environment with the required packages, you can use the [environment.yml](code/dicom_to_bids_single_subject.sh) file available in the [code](code) directory. To do that use the following command: `conda env create -f environment.yml`. It will create a conda environment called `heudiconv`. The activation of the `heudiconv` environment is integrated in the scripts.
 
 ## The main steps
 
