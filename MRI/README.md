@@ -2,54 +2,61 @@
 
 ## Table of contents
 
-- [Introduction](#introduction)
-- [The main steps](#the-main-steps)
-- [Where are your raw data](#where-are-your-raw-data)
-- [DICOM to BIDS using HeuDiConv](#dicom-to-bids-using-heudiconv)
-  - [Step 1: Discovering your scans](#step-1-discovering-your-scans)
-  - [Step 2: Creating a heuristic file](#step-2-creating-a-heuristic-file)
-  - [Step 3: Converting the data](#step-3-converting-the-data)
-- [Converting multiple subjects in parallel using SLURM](#converting-multiple-subjects-in-parallel-using-slurm)
-  - [Example 1](#example-1)
-  - [Example 2 (recommended)](#example-2-recommended)
-    - [A generic HeuDiConv script](#a-generic-heudiconv-script)
-    - [Project-specific script with the "sbatch" command](#project-specific-script-with-the-sbatch-command)
-    - [Checking your job status](#checking-your-job-status)
-- [Validate the BIDS dataset](#validate-the-bids-dataset)
-- [More use cases](#more-use-cases)
-  - [Multi-band acquisition with single-band reference scans (''sbref'')](#multi-band-acquisition-with-single-band-reference-scans-sbref)
-  - [Multi-echo data](#multi-echo-data)
-- [Code examples](#code-examples)
+- [Converting CBU MRI DICOM data to BIDS format](#converting-cbu-mri-dicom-data-to-bids-format)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Installation](#installation)
+    - [Running conversion on the CBU Linux cluster](#running-conversion-on-the-cbu-linux-cluster)
+    - [Running the conversion outside of the CBU Linux cluser](#running-the-conversion-outside-of-the-cbu-linux-cluser)
+  - [The main steps](#the-main-steps)
+  - [Where are your raw data](#where-are-your-raw-data)
+  - [DICOM to BIDS using HeuDiConv](#dicom-to-bids-using-heudiconv)
+    - [Step 1: Discovering your scans](#step-1-discovering-your-scans)
+    - [Step 2: Creating a heuristic file](#step-2-creating-a-heuristic-file)
+    - [Step 3: Converting the data](#step-3-converting-the-data)
+  - [Converting multiple subjects in parallel using SLURM](#converting-multiple-subjects-in-parallel-using-slurm)
+    - [Example 1](#example-1)
+    - [Example 2 (recommended)](#example-2-recommended)
+      - [A generic HeuDiConv script](#a-generic-heudiconv-script)
+      - [Project-specific script with the "sbatch" command](#project-specific-script-with-the-sbatch-command)
+      - [Checking your job status](#checking-your-job-status)
+  - [Validate the BIDS dataset](#validate-the-bids-dataset)
+  - [More use cases](#more-use-cases)
+    - [Multi-band acquisition with single-band reference scans ("sbref")](#multi-band-acquisition-with-single-band-reference-scans-sbref)
+    - [Multi-echo data](#multi-echo-data)
+  - [Code examples](#code-examples)
 
 ## Introduction
 
-To start working with your MRI data, you need to convert the raw `DICOM` format data to `NIfTI` format and organise them according to the [BIDS standard](https://bids-specification.readthedocs.io/en/stable/). This tutorial outlines how to do that. If you have any questions, please email [Dace Apšvalka](https://www.mrc-cbu.cam.ac.uk/people/dace.apsvalka/). The example scripts described in this tutorial are available here in the [code](code) directory.
+To start working with your MRI data, you need to convert the raw `DICOM` format data to `NIfTI` format and organise them according to the [BIDS standard](https://bids-specification.readthedocs.io/en/stable/). This tutorial outlines how to do that for CBU MRI data. If you have any questions, please email [Dace Apšvalka](https://www.mrc-cbu.cam.ac.uk/people/dace.apsvalka/). The example scripts described in this tutorial are available in the [code](code) directory.
 
-To perform the conversion on your CBU MRI data, you need to be logged into CBU Compute Cluster.
+## Installation
+
+Download the scripts from this repository's [code](code) folder to your local folder.
+
+### Running conversion on the CBU Linux cluster
+
+This tutorial assumes that you are running the conversion on the CBU Linux cluster. All required packages are installed on the CBU cluster under the `heudiconv` conda environment. It will be activated by the scripts themselves, you don't have to activate it.
+
+### Running the conversion outside of the CBU Linux cluser
+
+If you are not running the conversion on the CBU cluster, you need to have the following installed:
+
+- Python 3.6 or later
+- [heudiconv](https://heudiconv.readthedocs.io/en/latest/) `pip install heudiconv`
+- [dcm2niix](https://github.com/rordenlab/dcm2niix) `pip install dcm2niix`
+
+To automatically create an environment with the required packages, you can use the [environment.yml](code/dicom_to_bids_single_subject.sh) file available in the [code](code) directory. To do that use the following command: `conda env create -f environment.yml`.
 
 ## The main steps
 
-**1. Obtain the Scripts.**
+1. **Obtain the Scripts.** Download the example scripts from this repository's [code](code) folder.
 
-Download the example scripts.
+2. **Customize the Heuristic File.** Modify the `bids_heuristic.py` file according to the specifics of your data. To do this, you may first need to run `dicom_discover.sh` to get detailed information of what types of scans you have collected.
 
-**2. Customize the Heuristic File.**
+3. **Update the Python Script.** Edit the *dicom_to_bids_multiple_subjects.py* script. You'll need to enter your project details in the designated section at the top of the script. This includes paths, subject IDs, and other relevant information.
 
-Modify the *bids_heuristic.py* file according to the specifics of your data
-
-**3. Update the Python Script.**
-
-Edit the *dicom_to_bids_multiple_subjects.py* script. You'll need to enter your project details in the designated section at the top of the script. This includes paths, subject IDs, and other relevant information.
-
-**4. Execute the Script.**  
-
-Open the terminal and navigate to the directory where *dicom_to_bids_multiple_subjects.py* is located. Run the script by typing:
-
-```console
-./dicom_to_bids_multiple_subjects.py
-```
-
-This command initiates the conversion process.
+4. **Execute the Script.** Open the terminal and navigate to the directory where *dicom_to_bids_multiple_subjects.py* is located. Run the script by typing: `./dicom_to_bids_multiple_subjects.py`. This command initiates the conversion process.
 
 **More detailed instructions are provided in the sections below.**
 
@@ -58,34 +65,36 @@ This command initiates the conversion process.
 The raw data from the CBU MRI scanner are stored at `/mridata/cbu/[subject code]_[project code]`. You can see all your participant scan directories by typing a command like this in a terminal (replace *MR09029* with your project code):
 
 ```bash
-ls -d /mridata/cbu/*_MR09029/*
+ls -d /mridata/cbu/*_MR09029
 
-/mridata/cbu/CBU090817_MR09029/20090803_083228/
-/mridata/cbu/CBU090924_MR09029/20090824_095047/
-/mridata/cbu/CBU090928_MR09029/20090824_164906/
-/mridata/cbu/CBU090931_MR09029/20090825_095125/
+/mridata/cbu/CBU090817_MR09029
+/mridata/cbu/CBU090924_MR09029
+/mridata/cbu/CBU090928_MR09029
+/mridata/cbu/CBU090931_MR09029
 ...
 ```
 
-The first part of the folder name which follows the project code, is the data acquisition date. E.g., the data of the first subject in the example above was acquired on Aug-03-2009 (*20090803*). Each subject's folder contains data like this:
+Each subject has a unique CBU code. You can find a specific subject's scans, by their code. For example, to see the contents of subject with a code `CBU090817`, you can type a command like this in the terminal:  
 
 ```bash
-ls /mridata/cbu/CBU090817_MR09029/20090803_083228
+ls -d /mridata/cbu/CBU090817_*/*/*
 
-Series_001_CBU_Localiser/
-Series_002_CBU_MPRAGE/
-Series_003_CBU_DWEPI_BOLD210/
-Series_004_CBU_DWEPI_BOLD210/
-Series_005_CBU_DWEPI_BOLD210/
-Series_006_CBU_DWEPI_BOLD210/
-Series_007_CBU_DWEPI_BOLD210/
-Series_008_CBU_DWEPI_BOLD210/
-Series_009_CBU_DWEPI_BOLD210/
-Series_010_CBU_DWEPI_BOLD210/
-Series_011_CBU_DWEPI_BOLD210/
-Series_012_CBU_FieldMapping/
-Series_013_CBU_FieldMapping/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_001_CBU_Localiser/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_002_CBU_MPRAGE/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_003_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_004_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_005_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_006_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_007_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_008_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_009_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_010_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_011_CBU_DWEPI_BOLD210/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_012_CBU_FieldMapping/
+/mridata/cbu/CBU090817_MR09029/20090803_083228/Series_013_CBU_FieldMapping/
 ```
+
+The first part of the folder name which follows the project code, is the data acquisition date. E.g., the data of the subject above was acquired on Aug-03-2009 (*20090803*)
 
 Each `Series###` folder contains DICOM files of the particular scan. The name of the folder is the same as what a radiographer named the scan in the MRI console. Usually, the name is very indicative of what type of scan it is. In the example above, we acquired a T1w anatomical/structural scan (MPRAGE), nine functional scans (BOLD), and two field maps. The *Series_001_CBU_Localiser* scan is a positional scan for the MRI and can be ignored.
 
@@ -95,11 +104,16 @@ Several DICOM-to-BIDS conversion tools exist (see a full list [here](https://bid
 
 ## DICOM to BIDS using HeuDiConv
 
-On the CBU computing system, HeuDiConv is available in as a conda environment called *heudiconv*. (You can see all available *conda* environments by typing `conda env list` command in the terminal.)
+On the CBU cluster, HeuDiConv is available in a conda environment called *heudiconv*. (You can see all available *conda* environments by typing `conda env list` command in the terminal.)
 
-HeuDiConv converts DICOM (.dcm) files to NIfTI format (.nii or .nii.gz), generates their corresponding metadata files, renames the files and organises them in folders following BIDS specification.
+HeuDiConv does the following:
 
-The final result of DICOM Series being converted into BIDS for our example subject above is this:
+- converts DICOM (.dcm) files to NIfTI format (`.nii` or `.nii.gz`);
+- generates their corresponding metadata files (`.json`);
+- renames the files and organises them in folders following BIDS specification;
+- generates several other `.json` and `.tsv` files required by BIDS.
+
+The final result of DICOM Series being converted into BIDS for our example subject above would be this:
 
 ```console
 ├── sub-01
@@ -144,13 +158,15 @@ The final result of DICOM Series being converted into BIDS for our example subje
 │   └── sub-01_scans.tsv
 ```
 
-All files belonging to this subject are in the *sub-01* folder. The structural image is stored in the *anat* subfolder, field maps in *fmap*, and functional images in the *func* subfolders. Each file is accompanied by its .json file that contains the metadata, such as acquisition parameters. For the functional images, in addition to the metadata files, an events file is generated for each functional run. The file names follow the [BIDS specification](https://bids-standard.github.io/bids-starter-kit/folders_and_files/files.html).
+All files belonging to this subject are in the *sub-01* folder. The structural image is stored in the *anat* subfolder, field maps in *fmap*, and functional images in the *func* subfolders. Each file is accompanied by its `.json` file that contains the metadata, such as acquisition parameters. For the functional images, in addition to the metadata files, an events file is generated for each functional run. The file names follow the [BIDS specification](https://bids-standard.github.io/bids-starter-kit/folders_and_files/files.html).
 
-HeuDiConv needs information on how to translate your specific DICOMs into BIDS. This information is provided in a [heuristic file](https://heudiconv.readthedocs.io/en/latest/heuristics.html) that the user creates. At the moment, at the CBU we don't use a standard for naming our raw scans in the MRI console. Therefore we don't have a standard heuristic (rules) that we could feed to HeuDiConv for any of our projects. You need to create this heuristic file yourself for your specific project. You can use existing examples as a guideline.
+HeuDiConv needs information on how to translate your specific DICOMs into BIDS. This information is provided in a [heuristic file](https://heudiconv.readthedocs.io/en/latest/heuristics.html) that the user creates. 
+
+At the moment, at the CBU we don't use a standard for naming our raw scans in the MRI console. Therefore we don't have a standard heuristic (rules) that we could feed to HeuDiConv for any of our projects. You need to create this heuristic file yourself for your specific project. You can use existing examples as a guideline.
 
 To create the heuristic file, you need to know what scans you have, which ones you want to convert (you don't have to convert all scans, only the ones you need for your project), and how to uniquely identify each scan based on its metadata.
 
-As such, converting DICOM data to BIDS using HeuDiConv involves 3 main steps:
+As such, **converting DICOM data to BIDS using HeuDiConv involves 3 main steps**:
 
  1. Discovering what DICOM series (scans) there are in your data
  2. Creating a heuristic file specifying how to translate the DICOMs into BIDS
@@ -253,7 +269,7 @@ Once the processing has finished, the table that we are interested in will be lo
 cp /imaging/correia/da05/wiki/BIDS_conversion/MRI/work/dicom_discovery/.heudiconv/01/info/dicominfo.tsv ~/Desktop
 ```
 
-Now, you can open the file, for example, in MS Excel and keep it open for the next step - creating a heuristic file. 
+Now, you can open the file, for example, in MS Excel and keep it open for the next step - creating a heuristic file.
 
 ### Step 2: Creating a heuristic file
 
@@ -267,7 +283,7 @@ Conversion outputs are defined as keys with three elements:
 
 - a template path
 - output types (valid types: *nii*, *nii.gz*, and *dicom*)
-- *None* - a historical artefact inside HeuDiConv needed for some functions 
+- *None* - a historical artefact inside HeuDiConv needed for some functions
 
 An example conversion key looks like this:
 
@@ -334,7 +350,7 @@ The `for loop` loops through all our DICOM series that are found in the `RAW_PAT
 
 - We have two fieldmaps. One of them should be a *magnitude* image and the other one a *phase* image. Both have *FieldMapping* in their protocol name therefore we need to define additional criteria to distinguish between them. They differ in the `dim3` parameter. If in doubt, ask your radiographer, but typically, the *magnitude* image has more slices (higher `dim3`).
 
-- Our 9 functional scans are the only ones with more than one volume (`dim4`). They all are different runs of the same task, therefore we don't need any other distinguishing criteria for them, just the `dim4`. I specify here `dim4 > 100` because it could happen that not all participants and not all runs had exactly 210 volumes collected. In addition, sometimes it happens that a run is cancelled due to some problem and I want to discard any run with less than 100 volumes. 
+- Our 9 functional scans are the only ones with more than one volume (`dim4`). They all are different runs of the same task, therefore we don't need any other distinguishing criteria for them, just the `dim4`. I specify here `dim4 > 100` because it could happen that not all participants and not all runs had exactly 210 volumes collected. In addition, sometimes it happens that a run is cancelled due to some problem and I want to discard any run with less than 100 volumes.
 
 ```python
     for s in seqinfo:
@@ -374,7 +390,7 @@ To do that, we need to make three changes in our `dicom_discover.sh` bash script
 
 - We need to change the `--heuristic` parameter specifying the path to our newly created heuristic file
 
-- We need to change the `--converter` parameter to `dcm2niix` because now we want the DICOM files to be converted to NIfTI format. 
+- We need to change the `--converter` parameter to `dcm2niix` because now we want the DICOM files to be converted to NIfTI format.
 
 Once these changes are saved, you can run the script:
 
@@ -538,7 +554,7 @@ subprocess.run(bash_command, shell=True, check=True)
 - `--array`: Sets up a job array (0 to the number of subjects minus 1). Each SLURM task handles a different subject.
 - `--job-name`: Names the job 'heudiconv' for easy tracking.
 - `--output` and `--error`: Define paths for storing job outputs and errors, with unique filenames for each task.
-- The script and arguments (HEUDICONV_SCRIPT and the subsequent variables) are passed at the end. 
+- The script and arguments (HEUDICONV_SCRIPT and the subsequent variables) are passed at the end.
 
 **Additional Features:**
 

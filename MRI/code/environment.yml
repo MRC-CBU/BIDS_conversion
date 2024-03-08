@@ -1,0 +1,10 @@
+name: heudiconv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python=3.10.13
+  - pip:
+    - dcm2niix
+    - heudiconv
