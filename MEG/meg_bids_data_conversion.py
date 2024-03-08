@@ -20,7 +20,7 @@ from argparse import ArgumentParser
 import config as cfg
 
 
-def _check_config(cfg):
+def _check_config():
     """Check the configuration file for required variables."""
     required_vars = [
         'project_root', 'data_root', 'bids_raw_root', 'sourcedata_root', 
@@ -38,6 +38,9 @@ def _check_config(cfg):
     # Check if project folder exists
     assert op.exists(cfg.project_root), "Project folder not found. Please check the project_root variable in config.py"
     
+    # Check the MEG system
+    assert cfg.meg_system in ['triux', 'vectorview'], "meg_system must be either 'triux' or 'vectorview'"
+
     # Check that the event_channels variable
     assert isinstance(cfg.event_channels, list), "event_channels must be a list of strings. "
     
@@ -90,8 +93,6 @@ def _get_events_from_stim_channels(
 def process_subject(
     subject_info,
     event_info,
-    meg_system='triux',
-    fix_eeg_locations=False,
     adjust_event_times=False,
     process_structural=False
 ):
@@ -103,12 +104,6 @@ def process_subject(
             event_info: dict
                 Dictionary containing information about the events in the experiment.
                 See README.md for more information.
-            meg_system: str
-                The MEG system used to record the data. Must be either 'triux' or 'vectorview'.
-                Default is 'triux'.
-            fix_eeg_locations: bool
-                If True, the EEG locations in the raw data will be checked and fixed if necessary.
-                Default is False.
             adjust_event_times: bool
                 If True, the event times will be adjusted to account for the audio and visual latencies.
                 Default is False.
@@ -123,13 +118,10 @@ def process_subject(
             - adjust the event times to account for the audio and visual latencies
             - process the structural MRI data and add to the BIDS dataset
     """
-    
-    # Check that the meg_system is valid
-    assert meg_system in ['triux', 'vectorview'], "meg_system must be either 'triux' or 'vectorview'"
 
     # Define the fine-calibration and cross-talk files required for Maxfilter
-    cal_file_path = cfg.cal_file_path_triux if meg_system == 'triux' else cfg.cal_file_path_vectorview
-    ct_file_path = cfg.ct_file_path_triux if meg_system == 'triux' else cfg.ct_file_path_vectorview
+    cal_file_path = cfg.cal_file_path_triux if cfg.meg_system == 'triux' else cfg.cal_file_path_vectorview
+    ct_file_path = cfg.ct_file_path_triux if cfg.meg_system == 'triux' else cfg.ct_file_path_vectorview
        
     # Unpacking the subject information
     subj_id_bids = subject_info['bids_id']
@@ -175,7 +167,11 @@ def process_subject(
     for meg_file_info in meg_raw_files:
 
         # First check and fix eeg locations if necessary
-        if fix_eeg_locations: 
+        if cfg.meg_system == 'triux':
+            print("The MEG system is Triux. No need to fix EEG locations.")
+            raw_path = op.join(meg_raw_dir, meg_file_info['file'])
+        else:
+            print("The MEG system is VectorView. Checking and fixing EEG locations.")
             # Copy file to temporary location so that EEG locations can be checked and fixed
             raw_path = op.join(sourcedata_dir, meg_file_info['file'])
             shutil.copyfile(op.join(meg_raw_dir, meg_file_info['file']), raw_path)
@@ -188,8 +184,6 @@ def process_subject(
             # http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF. Function defined in config.
             command = cfg.check_eeg_cmd % raw_path
             sp.run(command.split(' '), check = True)
-        else:
-            raw_path = op.join(meg_raw_dir, meg_file_info['file'])
         
         # read raw file
         raw = mne.io.read_raw_fif(raw_path)
@@ -292,24 +286,12 @@ def process_subject(
 if __name__ == "__main__":
     # Parse command line arguments
     argparser = ArgumentParser(description='Convert MEG data to BIDS format')
-    argparser.add_argument('--meg_system',
-                           default='triux', 
-                           help='''The MEG system used to record the data. 
-                                   Must be either 'triux' or 'vectorview'.
-                                ''',
-                           type=str, 
-                           choices=['triux', 'vectorview'])
     argparser.add_argument('--keep_existing_folders',
                            action='store_true', 
                            help='''Keep the existing output folders before running the conversion. 
                                    By default, they are purged, which is recommended to avoid
                                    conflicts, but be careful not to delete important data!
                                 ''')
-    argparser.add_argument('--fix_eeg_locations',
-                           action='store_true', 
-                           help='''Check and fix EEG locations in the raw data. 
-                                   By default the EEG locations are not checked.
-                                ''')  
     argparser.add_argument('--adjust_event_times',
                            action='store_true', 
                            help='''Adjust the event times to account for the audio and visual latencies. 
@@ -327,15 +309,13 @@ if __name__ == "__main__":
                                 ''')
     
     args = argparser.parse_args()
-    meg_system = args.meg_system
     keep_existing_folders = args.keep_existing_folders
-    fix_eeg_locations = args.fix_eeg_locations
     adjust_event_times = args.adjust_event_times
     process_structural = args.process_structural
     keep_source_data = args.keep_source_data
 
     # Check the configuration file
-    _check_config(cfg)
+    _check_config()
 
     if not keep_existing_folders:
         # If output directory exist clear it to make sure doesn't contain leftover files 
@@ -365,8 +345,6 @@ if __name__ == "__main__":
         # Process the subject
         process_subject(subject_info_current, 
                         event_info, 
-                        meg_system=meg_system,
-                        fix_eeg_locations=fix_eeg_locations,
                         adjust_event_times=adjust_event_times,
                         process_structural=process_structural)
         

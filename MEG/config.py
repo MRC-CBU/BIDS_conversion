@@ -20,6 +20,10 @@ event_info_path = op.join(project_root, 'event_info.json')
 # the subjects in the experiment. See README.md for more information.
 subject_info_path = op.join(project_root, 'subject_info.json')
 
+# MEG system. This should be 'triux' (for the new system since 2020) or 
+# 'vectorview' (for the old system).
+meg_system = 'triux'  # or 'vectorview'
+
 # Channels to read the events from. By default, we read from the STI101 channel, 
 # which is the sum of all the trigger channels. Please refer to the 
 event_channels = ['STI101'] 
