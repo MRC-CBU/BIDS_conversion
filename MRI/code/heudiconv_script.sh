@@ -26,8 +26,13 @@
 # ------------------------------------------------------------
 # Parse the arguments passed to the script
 # ------------------------------------------------------------
-SUBJECT_ID_LIST=("$1")
-DICOM_PATH_LIST=("$2")
+# The two lists are passed as a single string, so we need to split them into 
+# separate arrays using 'Internal Field Separator' (IFS) set to space
+# -r prevents backslash escapes from being interpreted
+# -a assigns the values to an array
+IFS=' ' read -r -a SUBJECT_ID_LIST <<< "$1"
+IFS=' ' read -r -a DICOM_PATH_LIST <<< "$2"
+# The heuristic file and output path are passed as single strings
 HEURISTIC_FILE="${3}"
 OUTPUT_PATH="${4}"
 
@@ -51,6 +56,8 @@ echo "DICOM path: ${DICOM_PATH}"
 # ------------------------------------------------------------
 # Activate the heudiconv environment
 # ------------------------------------------------------------
+# This assumes you have a conda environment called heudiconv available (check with 'conda env list'). 
+# If not, create one with the heudiconv and dcm2niix packages installed.
 conda activate heudiconv
 
 # ------------------------------------------------------------
