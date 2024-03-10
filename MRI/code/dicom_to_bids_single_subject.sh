@@ -28,7 +28,9 @@ SUBJECT_ID='01'
 # ------------------------------------------------------------
 # Activate the heudiconv environment
 # ------------------------------------------------------------
-conda activate heudiconv # This assumes you have a conda environment called heudiconv available (check with 'conda env list'). If not, create one with the heudiconv and dcm2niix packages installed.
+# This assumes you have a conda environment called heudiconv available (check with 'conda env list'). 
+# If not, create one with the heudiconv and dcm2niix packages installed.
+conda activate heudiconv
 
 # ------------------------------------------------------------
 # Run the heudiconv

@@ -15,11 +15,9 @@
     - [Step 2: Creating a heuristic file](#step-2-creating-a-heuristic-file)
     - [Step 3: Converting the data](#step-3-converting-the-data)
   - [Converting multiple subjects in parallel using SLURM](#converting-multiple-subjects-in-parallel-using-slurm)
-    - [Example 1](#example-1)
-    - [Example 2 (recommended)](#example-2-recommended)
-      - [A generic HeuDiConv script](#a-generic-heudiconv-script)
-      - [Project-specific script with the "sbatch" command](#project-specific-script-with-the-sbatch-command)
-      - [Checking your job status](#checking-your-job-status)
+    - [A generic HeuDiConv script](#a-generic-heudiconv-script)
+    - [Project-specific script with the "sbatch" command](#project-specific-script-with-the-sbatch-command)
+    - [Checking your job status](#checking-your-job-status)
   - [Validate the BIDS dataset](#validate-the-bids-dataset)
   - [More use cases](#more-use-cases)
     - [Multi-band acquisition with single-band reference scans ("sbref")](#multi-band-acquisition-with-single-band-reference-scans-sbref)
@@ -47,6 +45,12 @@ If you are not running the conversion on the CBU cluster, you need to have the f
 - [dcm2niix](https://github.com/rordenlab/dcm2niix) `pip install dcm2niix`
 
 To automatically create an environment with the required packages, you can use the [environment.yml](code/dicom_to_bids_single_subject.sh) file available in the [code](code) directory. To do that use the following command: `conda env create -f environment.yml`. It will create a conda environment called `heudiconv`. The activation of the `heudiconv` environment is integrated in the scripts.
+
+You should check and, if needed, change the following lines in the following scripts to match your settup:
+
+- [code/dicom_to_bids_multiple_subjects.py](code/dicom_to_bids_multiple_subjects.py) Line 1: `#!/usr/bin/python3.6`; either remove it or change to your Python path.
+- [code/heudiconv_script.sh](code/heudiconv_script.sh) Line 61: `conda activate heudiconv`; change `heudiconv` to your conda environment that contains the required packages.
+- [code/dicom_to_bids_single_subject.sh](code/dicom_to_bids_single_subject.sh) Line 33: `conda activate heudiconv`; change `heudiconv` to your conda environment that contains the required packages.
 
 ## The main steps
 
@@ -404,21 +408,9 @@ To convert other subjects as well, you'd need to change the raw path and subject
 
 SLURM - **S**imple **L**inux **U**tility for **R**esource **M**anagement - is a system for managing and scheduling compute jobs, especially useful for parallel processing tasks. Jobs are sumitted with `sbatch` command which includes the job-specific parameters (e.g., resource requirements, scheduling preferences) and the executable commands (your script and its parameters).
 
-When you use SLURM, you have a couple of options for how to submit your jobs: you can embed `sbatch` parameters at the top of the script or include them in the job submission command.
+When you use SLURM, you have a couple of options for how to submit your jobs: you can embed `sbatch` parameters at the top of a bash script or include them in the job submission command.
 
-### Example 1
-
-By embedding `sbatch` parameters directly at the top of your script, you create a self-contained file. This means all the necessary instructions for running the job are included right within the script itself. To submit your job, you simply use the command:
-
-```console
-sbatch <script_path>
-```
-
-This approach is straightforward and ensures consistency, but it's not very flexible as the parameter allocation in this way cannot be automatised. It can also require quite an extensive bash-scripting that you might not feel comfortable with.
-
-The script [dicom_to_bids_multiple_subjects.sh](code/dicom_to_bids_multiple_subjects.sh) is an example of a self-contained bash script that converts multiple subjects' data to BIDS. The script is thoroughly commented, but I will not explain it here.
-
-### Example 2 (recommended)
+By embedding `sbatch` parameters directly at the top of your bash script, you create a self-contained file. This means all the necessary instructions for running the job are included right within the script itself. This approach is straightforward and ensures consistency, but it's not very flexible as the parameter allocation in this way cannot be automatised. It can also require quite an extensive bash-scripting that you might not feel comfortable with.
 
 An alternative way to use SLURM is to specify `sbatch` parameters directly in the job submission command. This method offers greater flexibility, as it allows you to easily customize and automate the setting of parameters. However, this approach is somewhat more complex compared to simply executing the script. Instead of running only the script, you execute a command like this:
 
@@ -432,7 +424,7 @@ A significant advantage of this approach is that it allows for more complex scri
 
 Example scripts of this approach are also available in the [code](code) directory and detailed further below.
 
-#### A generic HeuDiConv script
+### A generic HeuDiConv script
 
 [heudiconv_script.sh](code/heudiconv_script.sh)
 
@@ -441,8 +433,8 @@ First, we need a script that will run HeuDiConv. I have named it `heudiconv_scri
 This script is almost the same as the *single_subject* script with only a couple of differences. Same as before, we need to specify *subject ID*, *DICOM path*, *heuristic file*, and *output path*. But this time, instead of hard-coding these values in the script, they will be passed on from our `sbatch` command. And, instead of just one *subject ID* and one *DICOM path*, we will provide a list of subjects and paths to their DICOM data, as we want to convert multiple subjects.
 
 ```bash
-SUBJECT_ID_LIST=($1)
-DICOM_PATH_LIST=($2)
+IFS=' ' read -r -a SUBJECT_ID_LIST <<< "$1"
+IFS=' ' read -r -a DICOM_PATH_LIST <<< "$2"
 HEURISTIC_FILE="${3}"
 OUTPUT_PATH="${4}"
 ```
@@ -486,7 +478,7 @@ heudiconv \
 conda deactivate
 ```
 
-#### Project-specific script with the "sbatch" command
+### Project-specific script with the "sbatch" command
 
 [dicom_to_bids_multiple_subjects.py](code/dicom_to_bids_multiple_subjects.py)
 
@@ -560,13 +552,21 @@ subprocess.run(bash_command, shell=True, check=True)
 
 The script includes safety checks and extensive comments for clarity. The aim is to make it as self-explanatory as possible.
 
-To start the conversion process, simply run:
+The line at the very top of the script,
+
+```python
+#!/usr/bin/python3.6
+```
+
+specifies to run a particular version of Python. This is to ensure that when running the conversion on the CBU cluster the minimum required Python version is used. If you are not running the script on the CBU cluster, you either need to remove this line or change it to your own python path.
+
+To start the conversion process, simply run in the terminal:
 
 ```console
 ./dicom_to_bids_multiple_subjects.py
 ```
 
-#### Checking your job status
+### Checking your job status
 
 Once you have run the script, you can check the job scheduler if your job and its tasks are running. The command for that is `squeue -u [your ID]`, in my case `squeue -u da05`.
 
