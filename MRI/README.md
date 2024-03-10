@@ -1,9 +1,6 @@
 # Converting CBU MRI DICOM data to BIDS format
 
-## Table of contents
-
 - [Converting CBU MRI DICOM data to BIDS format](#converting-cbu-mri-dicom-data-to-bids-format)
-  - [Table of contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
     - [Using CBU Linux cluster](#using-cbu-linux-cluster)
