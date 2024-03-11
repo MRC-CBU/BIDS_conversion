@@ -39,7 +39,7 @@ HEUDICONV_SCRIPT = f"{PROJECT_PATH}/code/heudiconv_script.sh"
 HEURISTIC_FILE = f"{PROJECT_PATH}/code/bids_heuristic.py"
 
 # Location of the output data (Heudiconv will create the folder if it doesn't exist)
-OUTPUT_PATH = f"{PROJECT_PATH}/data/"
+OUTPUT_PATH = f"{PROJECT_PATH}/data/bids/"
 
 # Root location of dicom files
 DICOM_ROOT = '/mridata/cbu'

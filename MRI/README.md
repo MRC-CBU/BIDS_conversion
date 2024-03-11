@@ -46,8 +46,10 @@ To automatically create an environment with the required packages, you can use t
 You should check and, if needed, change the following lines in the following scripts to match your settup:
 
 - [code/dicom_to_bids_multiple_subjects.py](code/dicom_to_bids_multiple_subjects.py) Line 1: `#!/usr/bin/python3.6`; either remove it or change to your Python path.
-- [code/heudiconv_script.sh](code/heudiconv_script.sh) Line 61: `conda activate heudiconv`; change `heudiconv` to your conda environment that contains the required packages.
-- [code/dicom_to_bids_single_subject.sh](code/dicom_to_bids_single_subject.sh) Line 33: `conda activate heudiconv`; change `heudiconv` to your conda environment that contains the required packages.
+- In the following scripts change `conda activate heudiconv` to `conda activate your-env-name`, where `your-env-name` is to your conda environment that contains the required packages:
+  - [code/dicom_discover.sh](code/dicom_discover.sh) Line 32
+  - [code/dicom_to_bids_single_subject.sh](code/dicom_to_bids_single_subject.sh) Line 37
+  - [code/heudiconv_script.sh](code/heudiconv_script.sh) Line 61
 
 ## The main steps
 

@@ -3,12 +3,16 @@
 # ============================================================
 # This script is used to discover DICOM files using HeuDiConv.
 #
-# Usage: ./dicom_discover.sh
-# 
 # It is assumed that you have a conda environment called 'heudiconv' available (check with 'conda env list'). 
 # If not, create a conda environment with the heudiconv and dcm2niix packages installed.
 #
+# Usage: ./dicom_discover.sh
+#
 # ============================================================
+
+# ------------------------------------------------------------
+# Define your variables
+# ------------------------------------------------------------
 
 # Your project's root directory
 PROJECT_PATH='/imaging/correia/da05/wiki/BIDS_conversion/MRI'
