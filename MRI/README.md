@@ -57,7 +57,7 @@ You should check and, if needed, change the following lines in the following scr
 
 2. **Customize the Heuristic File.** Modify the `bids_heuristic.py` file according to the specifics of your data. To do this, you may first need to run `dicom_discover.sh` to get detailed information of what types of scans you have collected.
 
-3. **Update the Python Script.** Edit the *dicom_to_bids_multiple_subjects.py* script. You'll need to enter your project details in the designated section at the top of the script. This includes paths, subject IDs, and other relevant information.
+3. **Update the Python Script.** Edit the `dicom_to_bids_multiple_subjects.py` script. You'll need to enter your project details in the designated section at the top of the script. This includes paths, subject IDs, and other relevant information.
 
 4. **Execute the Script.** Open the terminal and navigate to the directory where *dicom_to_bids_multiple_subjects.py* is located. Run the script by typing: `./dicom_to_bids_multiple_subjects.py`. This command initiates the conversion process.
 
