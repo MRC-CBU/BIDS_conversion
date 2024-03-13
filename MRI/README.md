@@ -1,11 +1,5 @@
 # Converting CBU MRI DICOM data to BIDS format
 
-See a walk-through video on our YouTube channel:
-
-<a href="https://www.youtube.com/watch?v=yQBGsZMttCc">
-    <img src="https://img.youtube.com/vi/yQBGsZMttCc/0.jpg" width="320" alt="MRI to BIDS walk-through">
-</a>
-
 - [Converting CBU MRI DICOM data to BIDS format](#converting-cbu-mri-dicom-data-to-bids-format)
   - [Introduction](#introduction)
   - [Installation](#installation)
@@ -30,6 +24,12 @@ See a walk-through video on our YouTube channel:
 ## Introduction
 
 To start working with your MRI data, you need to convert the raw `DICOM` format data to `NIfTI` format and organise them according to the [BIDS standard](https://bids-specification.readthedocs.io/en/stable/). This tutorial outlines how to do that for CBU MRI data. If you have any questions, please email [Dace Apšvalka](https://www.mrc-cbu.cam.ac.uk/people/dace.apsvalka/). The example scripts described in this tutorial are available in the [code](code) directory.
+
+A video of our internal mini-workshop to walk-through this tutorial is on our YouTube channel:
+
+<a href="https://www.youtube.com/watch?v=yQBGsZMttCc">
+    <img src="https://img.youtube.com/vi/yQBGsZMttCc/0.jpg" width="320" alt="MRI to BIDS walk-through">
+</a>
 
 ## Installation
 
