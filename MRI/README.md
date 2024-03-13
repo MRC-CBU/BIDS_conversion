@@ -1,5 +1,9 @@
 # Converting CBU MRI DICOM data to BIDS format
 
+<a href="https://www.youtube.com/watch?v=yQBGsZMttCc">
+    <img src="https://img.youtube.com/vi/yQBGsZMttCc/0.jpg" width="320" alt="MRI to BIDS walk-through">
+</a>
+
 - [Converting CBU MRI DICOM data to BIDS format](#converting-cbu-mri-dicom-data-to-bids-format)
   - [Introduction](#introduction)
   - [Installation](#installation)
@@ -163,7 +167,7 @@ The final result of DICOM Series being converted into BIDS for our example subje
 
 All files belonging to this subject are in the *sub-01* folder. The structural image is stored in the *anat* subfolder, field maps in *fmap*, and functional images in the *func* subfolders. Each file is accompanied by its `.json` file that contains the metadata, such as acquisition parameters. For the functional images, in addition to the metadata files, an events file is generated for each functional run. The file names follow the [BIDS specification](https://bids-standard.github.io/bids-starter-kit/folders_and_files/files.html).
 
-HeuDiConv needs information on how to translate your specific DICOMs into BIDS. This information is provided in a [heuristic file](https://heudiconv.readthedocs.io/en/latest/heuristics.html) that the user creates. 
+HeuDiConv needs information on how to translate your specific DICOMs into BIDS. This information is provided in a [heuristic file](https://heudiconv.readthedocs.io/en/latest/heuristics.html) that the user creates.
 
 At the moment, at the CBU we don't use a standard for naming our raw scans in the MRI console. Therefore we don't have a standard heuristic (rules) that we could feed to HeuDiConv for any of our projects. You need to create this heuristic file yourself for your specific project. You can use existing examples as a guideline.
 
