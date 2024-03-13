@@ -1,5 +1,7 @@
 # Converting CBU MRI DICOM data to BIDS format
 
+See a walk-through video on our YouTube channel:
+
 <a href="https://www.youtube.com/watch?v=yQBGsZMttCc">
     <img src="https://img.youtube.com/vi/yQBGsZMttCc/0.jpg" width="320" alt="MRI to BIDS walk-through">
 </a>
