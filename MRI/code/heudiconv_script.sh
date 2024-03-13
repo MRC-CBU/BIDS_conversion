@@ -83,10 +83,11 @@ conda deactivate
 # --outdir: Output directory
 # --heuristic: Name of a known heuristic or path to the Python script containing heuristic
 # --subjects: Subject ID
+# --ses: Session ID
 # --converter : dicom to nii converter (dcm2niix or none)
 # --bids: Flag for output into BIDS structure
 # --overwrite: Flag to overwrite existing files
 # 
-# For a full list of parameters, see: https://heudiconv.readthedocs.io/en/latest/usage.html 
+# For a full list of parameters type 'heudiconv --help' in a terminal
 #
 # ============================================================
