@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# The above python path is set to work on the CBU cluster without the need to load a specific python module.
 
 # ============================================================
 # Requires Python 3.6 or higher! (because of f-strings)
