@@ -282,7 +282,7 @@ Now, you can open the file, for example, in MS Excel and keep it open for the ne
 
 ### Step 2: Creating a heuristic file
 
-The heuristic file must be a `Python` file. You can create and edit Python files in any text editor, but it would be more convenient to use a code editor or, even better, an *integrated development environment* (IDE), such as [VS Code](https://code.visualstudio.com/).
+The heuristic file must be a `Python` file. You can create and edit Python files in any text editor, but it would be more convenient to use a code editor or, even better, an *integrated development environment* (IDE), such as [VS Code](https://code.visualstudio.com/) ([see an introductory workshop on VS Code on our YouTube Chanel](https://www.youtube.com/watch?v=h9cQE0WUrm4)).
 
 You can name the file anything you want. For example, `bids_heuristic.py` like I have named my file which is [available here](code/bids_heuristic.py) and explained below.
 
