@@ -3,3 +3,4 @@ __pycache__
 slurm*
 job_logs
 .vscode
+*debug*
