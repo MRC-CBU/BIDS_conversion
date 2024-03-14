@@ -40,6 +40,8 @@ As a standard practice, empty room recordings are saved along with the correspon
 
 Alternatively, you can use the empty room recordings made by the MEG operators at the beginning of the day of your MEG recording sessions. For each MEG recording day, you can find these empty room recordings in `/megdata/cbu/camtest/no_name/[yymmdd]/` where  `yymmdd` is the date of the scan. 
 
+Finally, if you don't wish to save the empty room recordings with the MEG data, you can just leave them out from the `subject_info.json` file.
+
 ### Structural MRI
 Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom-bids#Where_are_your_raw_data) on how to find the MRI scans belonging to your MEG participant. You will need what's referred to as `subject code` and `project code` in the wiki page to be able to locate a particular participant. These could be structural scans which you collected or you could reuse already existing structural scans of your participants if they had been scanned at the CBU before. In the latter case, ask the [MRI administrator](mailto:mri.admin@mrc-cbu.cam.ac.uk) to locate these scans for you. 
 
@@ -67,10 +69,10 @@ Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom
       - `meg_id`: The unique identifier for the participant in the MEG data repository.
       - `meg_date`: The date of the MEG recording session in the format `yymmdd`.
       - `meg_raw_dir`: The path to the directory containing the raw MEG data for the participant.
-      - `meg_emptyroom_dir`: The path to the directory containing the empty room recording for the participant. Could be the same as `meg_raw_dir` or different. 
+      - `meg_emptyroom_dir`: The path to the directory containing the empty room recording for the participant. Could be the same as `meg_raw_dir` or different. If you don't wish to specify the empty room recording, set this to `null`. 
       - `meg_raw_files`: list of dictionaries containing information about the raw MEG files for the participant. Each dictionary should have the following key-value pairs: 
-          - `run`: The run number for the raw MEG file corresponding to the ['run' BIDS entity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#run). This should be a string.
-          - `task`: The name of the task performed during the run, corresponding to the ['task' BIDS entity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#task). This should be a string.
+          - `run`: The run number for the raw MEG file corresponding to the ['run' BIDS entity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#run). For the empty room recording, set this to `"emptyroom"`. This should be a string.
+          - `task`: The name of the task performed during the run, corresponding to the ['task' BIDS entity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#task). For the empty room recording, set this to `null`. This should be a string.
           - `file`: The name of the raw MEG file. This should be a string with file extension included. 
       - `meg_bad_channels`: list of bad channels for the participant as noted by the MEG operator during the recording session. This should be a list of strings in the format of `MEG#### or EEG###`, where `#` represents channel numbers. If there were no bad channels, this should be an empty list, `[]`.
       - `mri_id`: The unique identifier for the participant's MRI scan. This should be a string.
@@ -92,11 +94,16 @@ Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom
       ```
   - The script takes the following command line arguments:
       - `--keep_existing_folders`: If specified, it indicates to keep the existing BIDS folders before conversion. By default they are purged to avoid any conflicts which is recommended, but be careful not to delete important files.     
-      - `--keep_source_data`: If specified, it indicates to keep the temporary MEG and MRI data saved during the conversion process. By default the source data are deleted after the conversion is complete. 
-  - Example usage with fixing EEG locations, adjusting event times and processing structural MRI data
-      ```console
-      python meg_bids_data_conversion.py --adjust_event_times --process_structural 
-      ```
+      - `--keep_source_data`: If specified, it indicates to keep the temporary MEG and MRI data saved during the conversion process. By default the source data are deleted after the conversion is complete to save disk space. 
+  - Example usage:
+    -  With default options:
+        ```console
+        python meg_bids_data_conversion.py
+        ```
+    - With keeping the source data:
+        ```console
+        python meg_bids_data_conversion.py --keep_source_data
+        ```
   - The script will convert the raw MEG data for all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
   - The script also fixes EEG channel locations if the data were collected using the old Vectorview system. With the old Vectorview system, for EEG channels > 60, the EEG channel locations obtained from Polhemus digitiser were not copied properly to Neuromag acquisition software. Therefore you must apply mne_check_eeg_locations to your data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). This step is not necessary for the new Triux system.
   - Make sure to keep `meg_bids_data_conversion.py`, `config.py`, `subject_info.json` and `event_info.json` in the same directory.
