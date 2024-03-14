@@ -3,3 +3,5 @@ __pycache__
 slurm*
 job_logs
 .vscode
+# ignore files with _test postfix
+*_test.*
