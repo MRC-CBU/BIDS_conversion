@@ -43,7 +43,7 @@ Alternatively, you can use the empty room recordings made by the MEG operators a
 Finally, if you don't wish to save the empty room recordings with the MEG data, you can just leave them out from the `subject_info.json` file.
 
 ### Structural MRI
-Please refer to [this wiki page](https://imaging.mrc-cbu.cam.ac.uk/imaging/dicom-bids#Where_are_your_raw_data) on how to find the MRI scans belonging to your MEG participant. You will need what's referred to as `subject code` and `project code` in the wiki page to be able to locate a particular participant. These could be structural scans which you collected or you could reuse already existing structural scans of your participants if they had been scanned at the CBU before. In the latter case, ask the [MRI administrator](mailto:mri.admin@mrc-cbu.cam.ac.uk) to locate these scans for you. 
+Please refer to [this github page](https://github.com/MRC-CBU/BIDS_conversion/tree/main/MRI#where-are-your-raw-data) on how to find the MRI scans belonging to your MEG participant. You will need what's referred to as `subject code` and `project code` on that page to be able to locate a particular participant. These could be structural scans which you collected or you could reuse already existing structural scans of your participants if they had been scanned at the CBU before. In the latter case, ask the [MRI administrator](mailto:mri.admin@mrc-cbu.cam.ac.uk) to locate these scans for you. 
 
 ## Detailed instructions
 ### 1. Update the `config.py` file with the appropriate project specific path information. 
