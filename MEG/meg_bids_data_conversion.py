@@ -163,25 +163,33 @@ def process_subject(
 
         # First check and fix eeg locations if necessary
         if cfg.meg_system == 'triux':
+            # With the Triux system, the EEG locations are correct and do not need to be fixed
             print("The MEG system is Triux. No need to fix EEG locations.")
             raw_path = op.join(meg_raw_dir, meg_file_info['file'])
+            raw = mne.io.read_raw_fif(raw_path)
         else:
-            print("The MEG system is VectorView. Checking and fixing EEG locations.")
-            # Copy file to temporary location so that EEG locations can be checked and fixed
-            raw_path = op.join(sourcedata_dir, meg_file_info['file'])
-            shutil.copyfile(op.join(meg_raw_dir, meg_file_info['file']), raw_path)
-            
-            # Check EEG Locations and fix as necessary
-            # When EEG channels > 60 as at CBU, the EEG channel location obtained from Polhemus 
-            # digitiser is not copied properly to Neuromag acquisition software. Therefore must 
-            # apply mne_check_eeg_locations to data. Do this as early as possible in the processing
-            #  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct). 
-            # http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF. Function defined in config.
-            command = cfg.check_eeg_cmd % raw_path
-            sp.run(command.split(' '), check = True)
-        
-        # read raw file
-        raw = mne.io.read_raw_fif(raw_path)
+            # With the VectorView system, the EEG locations may need to be fixed
+            print("The MEG system is VectorView.")
+            # First check if the raw file has EEG channels
+            raw_path = op.join(meg_raw_dir, meg_file_info['file'])
+            raw = mne.io.read_raw_fif(raw_path)
+            if 'eeg' in raw:
+                # Copy file to temporary location so that EEG locations can be checked and fixed
+                raw_path = op.join(sourcedata_dir, meg_file_info['file'])
+                shutil.copyfile(op.join(meg_raw_dir, meg_file_info['file']), raw_path)
+                # Check EEG Locations and fix as necessary
+                # When EEG channels > 60 as at CBU, the EEG channel location obtained from Polhemus 
+                # digitiser is not copied properly to Neuromag acquisition software. Therefore must 
+                # apply mne_check_eeg_locations to data. Do this as early as possible in the processing
+                #  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct). 
+                # http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF. Function defined in config.
+                print("Checking and fixing EEG locations.")
+                command = cfg.check_eeg_cmd % raw_path
+                sp.run(command.split(' '), check = True)
+                # Reload the raw file as the file on disk may have been modified by cfg.check_eeg_cmd function
+                raw = mne.io.read_raw_fif(raw_path)
+            else: 
+                print("No EEG channels found in the raw data. Skipping EEG location check.")
         print(f"file in is: {raw_path} \n")
         print(f"run_id is: {meg_file_info['run']} \n")
 
