@@ -9,15 +9,13 @@ Author: Mate Aller
 email:  mate.aller@mrc-cbu.cam.ac.uk
 
 """
-import json, mne, os, shutil
+import json, mne, os, shutil, importlib
 import os.path as op
 import numpy as np
 import subprocess as sp
 from mne_bids import (BIDSPath, mark_channels, write_raw_bids, 
                       write_meg_calibration, write_meg_crosstalk, write_anat)
 from argparse import ArgumentParser
-
-import config as cfg
 
 
 def _check_config():
@@ -294,11 +292,20 @@ if __name__ == "__main__":
                            help='''Keep the temporary sourcedata folder after the conversion. 
                                    By default the sourcedata folder is purged after the conversion.
                                 ''')
-    
+    argparser.add_argument('--config',
+                           default='config',
+                           help='''Absolute import path to the configuration file.
+                                   Default is 'config'. 
+                                   Should be in the form of 'module_name' or 'package.module_name'.
+                                   For more details see: https://docs.python.org/3/library/importlib.html#importlib.import_module
+                                ''')
     args = argparser.parse_args()
     keep_existing_folders = args.keep_existing_folders
     keep_source_data = args.keep_source_data
+    config_import_path = args.config
 
+    cfg = importlib.import_module(config_import_path)
+    
     # Check the configuration file
     _check_config()
 
