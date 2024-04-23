@@ -95,6 +95,7 @@ Please refer to [this github page](https://github.com/MRC-CBU/BIDS_conversion/tr
   - The script takes the following command line arguments:
       - `--keep_existing_folders`: If specified, it indicates to keep the existing BIDS folders before conversion. By default they are purged to avoid any conflicts which is recommended, but be careful not to delete important files.     
       - `--keep_source_data`: If specified, it indicates to keep the temporary MEG and MRI data saved during the conversion process. By default the source data are deleted after the conversion is complete to save disk space. 
+      - `--config`: Absolute import path to the configuration file. This makes it possible to select different config files programmatically. Mainly used for testing purposes. Default is 'config'. Should be in the form of 'module_name' or 'package.module_name'. For more details see: https://docs.python.org/3/library/importlib.html#importlib.import_module
   - Example usage:
     -  With default options:
         ```console
