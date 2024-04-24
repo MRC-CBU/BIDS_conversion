@@ -54,6 +54,47 @@ def _check_config():
     return
 
 
+def _check_subject_info(subject_info):
+    required_keys = ['bids_id', 'meg_id', 'meg_raw_dir', 'meg_emptyroom_dir',
+                     'meg_raw_files', 'meg_bad_channels', 'mri_id', 'mri_date', 
+                     'mri_nii_file', 'mri_dcm_dir']
+    print('Checking subject info file...')
+    for sub_id, info in subject_info.items():
+        assert all(key in info for key in required_keys), (
+            f"Subject {sub_id} is missing one or more of the required keys: {required_keys}"
+        )
+        for key in ['bids_id', 'meg_id', 'meg_date']:
+            assert type(info[key]) == str and info[key], (
+                f"Subject {sub_id} {key} must be specified as a non-empty string"
+            )
+        assert op.exists(info['meg_raw_dir']), (
+            f"Subject {sub_id} MEG raw data directory not found"
+        )
+        if info['meg_emptyroom_dir'] is not None:
+            assert op.exists(info['meg_emptyroom_dir']), (
+                f"Subject {sub_id} MEG emptyroom data directory not found"
+            )
+        assert type(info['meg_raw_files']) == list and info['meg_raw_files'], (
+            f"Subject {sub_id} meg_raw_files must be a non-empty list"
+        )
+        assert type(info['meg_bad_channels']) == list, (
+            f"Subject {sub_id} meg_bad_channels must be a list"
+        )
+        if cfg.process_structural:
+            assert info['mri_nii_file'].endswith('.nii.gz'), (
+                f"Subject {sub_id} mri_nii_file must be in .nii.gz format"
+            )
+            assert info['mri_dcm_dir'], (
+                f"Subject {sub_id} MRI dicom directory not specified"
+            )
+            assert op.exists(info['mri_dcm_dir']), (
+                f"Subject {sub_id} MRI dicom directory not found"
+            )
+
+    print('Subject info file is OK.')
+    return
+
+
 def _get_events_from_stim_channels(
     raw, 
     stim_channels = ['STI001', 'STI002', 'STI003', 'STI004', 
@@ -328,6 +369,9 @@ if __name__ == "__main__":
     # Load subject info
     with open(cfg.subject_info_path, 'r') as f:
         subject_info = json.load(f)
+    
+    # Check the subject info
+    _check_subject_info(subject_info)
 
     # Load event info
     with open(cfg.event_info_path, 'r') as f:
