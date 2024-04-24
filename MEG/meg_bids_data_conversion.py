@@ -124,7 +124,7 @@ def process_subject(
     meg_emptyroom_dir = subject_info['meg_emptyroom_dir']
     meg_raw_files = subject_info['meg_raw_files']
     meg_bad_channels = subject_info['meg_bad_channels']
-    mri_file = subject_info['mri_nii_file']
+    mri_file_name = subject_info['mri_nii_file']
     sourcedata_dir = op.join(cfg.sourcedata_root, f'sub-{subj_id_bids}')
     os.makedirs(sourcedata_dir, exist_ok=True)
 
@@ -264,8 +264,8 @@ def process_subject(
         # First convert the original dicom mri file to temporary nifiti file using dcm2niix
         mri_path_dcm = subject_info['mri_dcm_dir']
         temp = subject_info['mri_nii_file']
-        mri_filename_nii = op.splitext(temp)[0] # remove extension as dcm2niix will add it
-        command =  f'dcm2niix -o {sourcedata_dir} -f {mri_filename_nii} -m y {mri_path_dcm}'
+        mri_filename_nii = temp.replace('.nii.gz', '') # remove extension as dcm2niix will add it
+        command =  f'dcm2niix -o {sourcedata_dir} -f {mri_filename_nii} -m y -z y {mri_path_dcm}'
         # Run as a system command
         sp.run(command.split(' '), check = True)
 
@@ -278,7 +278,7 @@ def process_subject(
             suffix='T1w')
         # Use the write_anat function to write the T1w image to the BIDS dataset
         t1w_bids_path = write_anat(
-            image=op.join(sourcedata_dir, mri_file),
+            image=op.join(sourcedata_dir, mri_file_name),
             bids_path=t1w_bids_path,
             landmarks=None, # Note, in this case sidecar file will not be saved
             verbose=True)
