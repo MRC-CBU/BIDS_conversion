@@ -77,7 +77,7 @@ Please refer to [this github page](https://github.com/MRC-CBU/BIDS_conversion/tr
       - `meg_bad_channels`: list of bad channels for the participant as noted by the MEG operator during the recording session. This should be a list of strings in the format of `MEG#### or EEG###`, where `#` represents channel numbers. If there were no bad channels, this should be an empty list, `[]`.
       - `mri_id`: The unique identifier for the participant's MRI scan. This should be a string.
       - `mri_date`: The date of the MRI scan in the format `yymmdd`.
-      - `mri_nii_file`: The name of the NIfTI file for the participant's MRI scan after conversion from DICOM format. This should be a string with file extension included.
+      - `mri_nii_file`: The name of the NIfTI file for the participant's MRI scan after conversion from DICOM format. This should be a string with file extension included (i.e., .nii.gz as the file will be compressed).
       - `mri_dcm_dir`: The path to the directory containing the DICOM files for the participant's MRI scan. This should be a string. 
   - Simply copy over the example JSON object in `subject_info.json` as many times as you have subjects in your dataset and update the values for each key as appropriate. 
   - **Note**: currently it is assumed that the MEG data were collected in a single session. If you have multiple MEG recording sessions for a participant, you will need to add the ['ses' BIDS identity](https://bids-specification.readthedocs.io/en/stable/appendices/entities.html#ses) to the `meg_raw_files` dictionary and have separate `meg_date` for each session. You'll also need to modify the code in `meg_bids_data_conversion.py` to handle these changes. 
