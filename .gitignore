@@ -1,6 +1,6 @@
 data
 __pycache__
-slurm*
+slurm*.out
 job_logs
 .vscode
 *debug*
