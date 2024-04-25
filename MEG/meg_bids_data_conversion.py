@@ -42,8 +42,6 @@ def _check_config():
     # Check that the event_channels variable
     assert isinstance(cfg.event_channels, list), "event_channels must be a list of strings. "
     
-    assert cfg.event_channels, "event_channels cannot be an empty list"
-    
     if 'STI101' in cfg.event_channels:
         assert len(cfg.event_channels) == 1, "If you are using STI101 as the event channel, it should be the only channel in the event_channels list."
     
@@ -95,17 +93,36 @@ def _check_subject_info(subject_info):
     return
 
 
-def _get_events_from_stim_channels(
+def _check_event_channels(event_channels, raw):
+    """Check the event_channels variable in the config.py file."""
+    if isinstance(event_channels, dict):
+        assert len(event_channels) == 2 and all([key in event_channels.keys() for key in ['stim', 'resp']]), "event_channels dictionary must contain precisely a 'stim' and 'resp' key only."
+        assert all([isinstance(event_channels[key], list) for key in event_channels.keys()]), "Values in the event_channels dictionary must be lists of stirngs."
+        assert all([ch in raw.ch_names for ch in event_channels['stim']]), "One or more specified stim channels not found in the raw data."
+        assert all([ch in raw.ch_names for ch in event_channels['resp']]), "One or more specified resp channels not found in the raw data."
+    elif isinstance(event_channels, list):
+        assert all([ch in raw.ch_names for ch in event_channels]), "One or more specified stim channels not found in the raw data."
+        if 'STI101' in event_channels:
+            assert len(event_channels) == 1, "If you are using STI101 as the event channel, it should be the only channel in the event_channels list."
+    else: 
+        raise ValueError("event_channels must be a list of strings or a dictionary of the form {'stim': stim_channel_list, 'resp': resp_channel_list}")
+    return
+
+
+def _get_events_from_sti_channels(
     raw, 
-    stim_channels = ['STI001', 'STI002', 'STI003', 'STI004', 
+    event_channels = ['STI001', 'STI002', 'STI003', 'STI004', 
                      'STI005', 'STI006', 'STI007', 'STI008']
 ):
     """Get events from STI001-STI008 channels.
         Inputs:
             raw: mne.io.Raw object
                 The raw MEG data
-            stim_channels: list of str
+            event_channels: list of str or dict of form {'stim': stim_channel_list, 'resp': resp_channel_list}
                 The names of the binary STI channels. 
+                If a list is provided, the channel values are converted to decimal values and summed.
+                If a dictionary is provided, the values in the 'stim' channels are converted to decimal amd summed 
+                    and the values in the 'resp' channels are converted to decimal but not summed.
                 Default is ['STI001', 'STI002', 'STI003', 'STI004',
                             'STI005', 'STI006', 'STI007', 'STI008']
         Outputs:
@@ -116,12 +133,24 @@ def _get_events_from_stim_channels(
             it is necessary to get the trigger values from the binary STI channels dedicated to 
             the stimulus triggers (STI001-STI008) and combine them to get the decimal trigger values.
     """
-    stim_data = raw.get_data(picks=stim_channels)
+
+    # perform checks
+    _check_event_channels(event_channels, raw)
+    
+    # Sort the stim channels and make sure that they start with STI001 and end with STI008
+    if isinstance(event_channels, dict):
+        event_channels['stim'] = sorted(event_channels['stim'])
+        event_channels['resp'] = sorted(event_channels['resp'])
+    else:
+        event_channels = sorted(event_channels)
+
+    # Get the data from the stim channels, make sure channels are sorted
+    stim_data = raw.get_data(picks=event_channels)
     # Combine binary STI channels to get decimal trigger values 
     # Values in STI channels should be 0 or 5
     # For each channel, substitute the nonzero values to the values encoded by that channel
     # see https://imaging.mrc-cbu.cam.ac.uk/meg/IdentifyingEventsWithTriggers
-    for i in range(len(stim_channels)):
+    for i in range(len(event_channels)):
         stim_data[i, np.where(stim_data[i, :] > 0)] = 2**i
     sti101_new = np.sum(stim_data, axis=0, keepdims=True)
     
@@ -245,7 +274,7 @@ def process_subject(
             # Alternatively use only the specified stimulus channels. In this case these
             # binary channels will be summed and converted to decimal values from wich the 
             # events will be read.
-            events = _get_events_from_stim_channels(raw, cfg.event_channels)
+            events = _get_events_from_sti_channels(raw, cfg.event_channels)
         
         # Get the event value counts
         unique, counts = np.unique(events[:, 2], return_counts=True)

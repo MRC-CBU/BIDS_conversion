@@ -25,7 +25,12 @@ subject_info_path = op.join(project_root, 'subject_info.json')
 meg_system = 'triux'  # or 'vectorview'
 
 # Channels to read the events from. By default, we read from the STI101 channel, 
-# which is the sum of all the trigger channels. Please refer to the 
+# which is the sum of all the trigger channels. 
+# This can be a
+#   - list of channel names or 
+#   - dictionary of the form {'stim': stim_channel_list, 'resp': resp_channel_list}
+#        where stim_channel_list and resp_channel_list are lists of channel names.
+# Valid channel names are 'STI101', and 'STI001' up to 'STI016'
 event_channels = ['STI101'] 
 
 # Whether to adjust the event times for the audio and visual latencies.
