@@ -108,7 +108,13 @@ Please refer to [this github page](https://github.com/MRC-CBU/BIDS_conversion/tr
   - The script will convert the raw MEG data for all subjects specified in your `subject_info.json` file to BIDS format. The BIDS data will be saved in the `bids_raw_root` folder specified in the `config.py` file. 
   - The script also fixes EEG channel locations if the data were collected using the old Vectorview system. With the old Vectorview system, for EEG channels > 60, the EEG channel locations obtained from Polhemus digitiser were not copied properly to Neuromag acquisition software. Therefore you must apply mne_check_eeg_locations to your data. Do this as early as possible in the processing  pipeline. There is no harm in applying this function (e.g. if the eeg locations are correct), read more about this [here](http://imaging.mrc-cbu.cam.ac.uk/meg/AnalyzingData/MNE_FixingFIFF). This step is not necessary for the new Triux system.
   - Make sure to keep `meg_bids_data_conversion.py`, `config.py`, `subject_info.json` and `event_info.json` in the same directory.
-  
+  - For larger datasets, the conversion process can take a long time, so it is recommended to run the script on a compute node using the slurm job scheduler. You can use the `slurm_meg_bids_conversion_job_script.sh` script to submit a job to the slurm scheduler. You can submit the job by navigating into your project root folder in a terminal and executing the following command:
+      ```console
+      sbatch slurm_meg_bids_conversion_job_script.sh
+      ```
+      - Please update the `slurm_meg_bids_conversion_job_script.sh` file with the appropriate project specific path information.
+      - You can set the number of nodes, number of tasks per node and time limit for the job at the top of `slurm_meg_bids_conversion_job_script.sh` in the lines starting with `##SBATCH`, by changing the values of the `--nodes`, `--ntasks` and `--time` flags respectively. You can read more about the slurm job scheduler in the [CBU intranet](http://intranet.mrc-cbu.cam.ac.uk/home/using-the-cbu-cluster-2019/). 
+      - Note: currently the script does not support parallel execution. This feature will be added in the future. 
 
 ## Further steps
 ### Add dataset description to your BIDS repository
