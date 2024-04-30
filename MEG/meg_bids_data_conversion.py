@@ -20,17 +20,28 @@ from argparse import ArgumentParser
 
 def _check_config():
     """Check the configuration file for required variables."""
+    # Checking required variables
+    # ---------------------------
     required_vars = [
         'project_root', 'data_root', 'bids_raw_root', 'sourcedata_root', 
-        'event_info_path', 'subject_info_path', 'event_channels', 
-        'auditory_event_names', 'visual_event_names', 'auditory_event_values', 
-        'visual_event_values', 'audio_latency_sec', 'visual_latency_sec', 
+        'event_info_path', 'subject_info_path', 'meg_system', 'event_channels', 
+        'adjust_event_times', 'audio_latency_sec', 'visual_latency_sec', 
         'cal_file_path_triux', 'ct_file_path_triux', 'cal_file_path_vectorview', 
         'ct_file_path_vectorview'
     ]
     for var in required_vars:
         assert hasattr(cfg, var), f"{var} is missing from the config.py file"
-    
+    # Auditory and visual event names and values are required only if 
+    # adjust_event_times is True
+    if cfg.adjust_event_times:
+        required_vars_adjust_event_times = [
+            'auditory_event_names',
+            'visual_event_names',
+            'auditory_event_values',
+            'visual_event_values']
+        for var in required_vars_adjust_event_times:
+            if cfg.adjust_event_times:
+                assert hasattr(cfg, var), f"{var} is missing from the config.py file"
     # Checking specific config variables
     # ----------------------------------
     # Check if project folder exists
@@ -42,7 +53,6 @@ def _check_config():
         "meg_system must be either 'triux' or 'vectorview'"
     )
     assert isinstance(cfg.adjust_event_times, bool), "adjust_event_times must be a boolean"
-    assert isinstance(cfg.process_structural, bool), "process_structural must be a boolean"
 
     return
 
@@ -73,15 +83,16 @@ def _check_subject_info(subject_info):
         assert type(info['meg_bad_channels']) == list, (
             f"Subject {sub_id} meg_bad_channels must be a list"
         )
-        if cfg.process_structural:
-            assert info['mri_nii_file'].endswith('.nii.gz'), (
-                f"Subject {sub_id} mri_nii_file must be in .nii.gz format"
-            )
-            assert info['mri_dcm_dir'], (
-                f"Subject {sub_id} MRI dicom directory not specified"
-            )
+        if info['mri_dcm_dir'] is not None:
             assert op.exists(info['mri_dcm_dir']), (
                 f"Subject {sub_id} MRI dicom directory not found"
+            )
+            assert info['mri_nii_file'] is not None, (
+                f"Subject {sub_id} MRI nii file must be specified if dicom directory is provided"
+            )
+        if info['mri_nii_file'] is not None:
+            assert info['mri_nii_file'].endswith('.nii.gz'), (
+                f"Subject {sub_id} mri_nii_file must be in .nii.gz format"
             )
 
     print('Subject info file is OK.')
@@ -250,7 +261,6 @@ def process_subject(
     meg_emptyroom_dir = subject_info['meg_emptyroom_dir']
     meg_raw_files = subject_info['meg_raw_files']
     meg_bad_channels = subject_info['meg_bad_channels']
-    mri_file_name = subject_info['mri_nii_file']
     sourcedata_dir = op.join(cfg.sourcedata_root, f'sub-{subj_id_bids}')
     os.makedirs(sourcedata_dir, exist_ok=True)
 
@@ -379,12 +389,15 @@ def process_subject(
 
     # Add structural MRI data to the BIDS dataset
     # ------------------------------------------
-    if cfg.process_structural: 
+    if subject_info['mri_dcm_dir'] is None: 
+        print("No MRI dicom directory provided. Skipping structural MRI conversion.")
+    else:
+        print("Converting structural MRI data to BIDS format.")
         # First convert the original dicom mri file to temporary nifiti file using dcm2niix
         mri_path_dcm = subject_info['mri_dcm_dir']
-        temp = subject_info['mri_nii_file']
-        mri_filename_nii = temp.replace('.nii.gz', '') # remove extension as dcm2niix will add it
-        command =  f'dcm2niix -o {sourcedata_dir} -f {mri_filename_nii} -m y -z y {mri_path_dcm}'
+        mri_file_name = subject_info['mri_nii_file']
+        mri_filename_noext = mri_file_name.replace('.nii.gz', '') # remove extension as dcm2niix will add it
+        command =  f'dcm2niix -o {sourcedata_dir} -f {mri_filename_noext} -m y -z y {mri_path_dcm}'
         # Run as a system command
         sp.run(command.split(' '), check = True)
 
@@ -468,10 +481,12 @@ if __name__ == "__main__":
         process_subject(subject_info_current, 
                         event_info)
         
-        print("finished subject and moving on")
+        print("Finished subject and moving on")
 
         # end of loop through subjects
 
     # Purge the temporary sourcedata folder after the conversion
     if (not keep_source_data) and op.exists(cfg.sourcedata_root):
         shutil.rmtree(cfg.sourcedata_root)
+
+    print("Finished converting data from all subjects to BIDS format.")
