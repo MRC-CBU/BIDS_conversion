@@ -49,9 +49,6 @@ visual_event_names = [key for key in event_info.keys() if key.startswith('writte
 auditory_event_values = [event_info[key] for key in auditory_event_names]
 visual_event_values = [event_info[key] for key in visual_event_names]
 
-# Whether to process the structural data. If you don't have structural data,
-process_structural = False
-
 # *********************************************************************
 # MEG setup specific information, you should not need to change these *
 # *********************************************************************
