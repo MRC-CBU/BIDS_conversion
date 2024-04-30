@@ -102,12 +102,22 @@ def _check_event_channels(event_channels, raw):
         assert all([isinstance(event_channels[key], list) for key in event_channels.keys()]), (
             "Values in the event_channels dictionary must be lists of stirngs."
         )
-        assert all([ch in raw.ch_names for ch in event_channels['stim']]), (
-            "One or more specified stim channels not found in the raw data."
-        )
-        assert all([ch in raw.ch_names for ch in event_channels['resp']]), (
-            "One or more specified resp channels not found in the raw data."
-        )
+        if any([ch not in raw.ch_names for ch in event_channels['stim']]): 
+            print("One or more specified stimulus channels not found in the raw data.\n", 
+                "Changing the event_channels variable to use STI101 channel only.")
+            assert 'STI101' in raw.ch_names, (
+                "STI101 channel not found in the raw data. Please provide a valid stimulus channel."
+            )
+            return ['STI101']
+        
+        if any([ch not in raw.ch_names for ch in event_channels['resp']]): 
+            print("One or more specified resp channels not found in the raw data.\n", 
+                "Changing the event_channels variable to use STI101 channel only.")
+            assert 'STI101' in raw.ch_names, (
+                "STI101 channel not found in the raw data. Please provide a valid stimulus channel."
+            )
+            return ['STI101']
+
         assert all(['STI101' not in event_channels[key] for key in event_channels.keys()]), (
             "STI101 combines all STI channels so it should only be used by itself in a list."
         )
@@ -116,9 +126,14 @@ def _check_event_channels(event_channels, raw):
             "The same channel cannot be used in both the stim and resp lists."
         )
     elif isinstance(event_channels, list):
-        assert all([ch in raw.ch_names for ch in event_channels]), (
-            "One or more specified stim channels not found in the raw data."
-        )
+        if any([ch not in raw.ch_names for ch in event_channels]):
+            print("One or more specified channels not found in the raw data.\n", 
+                "Changing the event_channels variable to use STI101 channel only.")
+            assert 'STI101' in raw.ch_names, (
+                "STI101 channel not found in the raw data. Please provide a valid stimulus channel."
+            )
+            return ['STI101']
+
         if 'STI101' in event_channels:
             assert len(event_channels) == 1, (
                 ("If you are using STI101 as the event channel, "
@@ -131,7 +146,7 @@ def _check_event_channels(event_channels, raw):
              "of the form {'stim': stim_channel_list, 'resp': resp_channel_list}"
             )
         )
-    return
+    return event_channels
 
 
 def _sti_to_decimal(sti_data, event_channels):
@@ -177,7 +192,7 @@ def _get_events_from_sti_channels(
     """
 
     # perform checks
-    _check_event_channels(event_channels, raw)
+    event_channels = _check_event_channels(event_channels, raw)
     
     # Sort the stim channels and make sure that they start with STI001 and end with STI008
     if isinstance(event_channels, dict):
