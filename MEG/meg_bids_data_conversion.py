@@ -60,7 +60,7 @@ def _check_config():
 def _check_subject_info(subject_info):
     required_keys = ['bids_id', 'meg_id', 'meg_raw_dir', 'meg_emptyroom_dir',
                      'meg_raw_files', 'meg_bad_channels', 'mri_id', 'mri_date', 
-                     'mri_nii_file', 'mri_dcm_dir']
+                     'mri_dcm_dir']
     print('Checking subject info file...')
     for sub_id, info in subject_info.items():
         assert all(key in info for key in required_keys), (
@@ -86,13 +86,6 @@ def _check_subject_info(subject_info):
         if info['mri_dcm_dir'] is not None:
             assert op.exists(info['mri_dcm_dir']), (
                 f"Subject {sub_id} MRI dicom directory not found"
-            )
-            assert info['mri_nii_file'] is not None, (
-                f"Subject {sub_id} MRI nii file must be specified if dicom directory is provided"
-            )
-        if info['mri_nii_file'] is not None:
-            assert info['mri_nii_file'].endswith('.nii.gz'), (
-                f"Subject {sub_id} mri_nii_file must be in .nii.gz format"
             )
 
     print('Subject info file is OK.')
@@ -395,7 +388,7 @@ def process_subject(
         print("Converting structural MRI data to BIDS format.")
         # First convert the original dicom mri file to temporary nifiti file using dcm2niix
         mri_path_dcm = subject_info['mri_dcm_dir']
-        mri_file_name = subject_info['mri_nii_file']
+        mri_file_name = f'sub-{subj_id_bids}_T1w.nii.gz'
         mri_filename_noext = mri_file_name.replace('.nii.gz', '') # remove extension as dcm2niix will add it
         command =  f'dcm2niix -o {sourcedata_dir} -f {mri_filename_noext} -m y -z y {mri_path_dcm}'
         # Run as a system command

@@ -44,7 +44,6 @@
         ],
         "mri_id": "",
         "mri_date": "",
-        "mri_nii_file": "sub-01_T1w.nii.gz",
         "mri_dcm_dir": ""
     }
 }
