@@ -14,4 +14,4 @@ cd /path/to/your/project/root
 # run the meg bids conversion pipeline
 # you can add any additional arguments after the command 
 # in the form of --arg_name arg_value
-python meg_bids_conversion.py
+python meg_bids_data_conversion.py
