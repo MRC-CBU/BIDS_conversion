@@ -34,6 +34,7 @@ SUBJECT_ID='01'
 # ------------------------------------------------------------
 # Activate the heudiconv environment
 # ------------------------------------------------------------
+source /imaging/local/software/conda/py311_23.11.0-2/etc/profile.d/conda.sh
 conda activate heudiconv
 
 # ------------------------------------------------------------

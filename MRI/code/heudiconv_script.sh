@@ -58,6 +58,7 @@ echo "DICOM path: ${DICOM_PATH}"
 # ------------------------------------------------------------
 # This assumes you have a conda environment called heudiconv available (check with 'conda env list'). 
 # If not, create one with the heudiconv and dcm2niix packages installed.
+source /imaging/local/software/conda/py311_23.11.0-2/etc/profile.d/conda.shs
 conda activate heudiconv
 
 # ------------------------------------------------------------
