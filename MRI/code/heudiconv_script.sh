@@ -65,7 +65,7 @@ conda activate heudiconv
 # Run the heudiconv
 # ------------------------------------------------------------
 heudiconv \
-    --files "${DICOM_PATH}"/*/*/*.dcm \
+    --files "${DICOM_PATH}" \
     --outdir "${OUTPUT_PATH}" \
     --heuristic "${HEURISTIC_FILE}" \
     --subjects "${SUBJECT_ID}" \
